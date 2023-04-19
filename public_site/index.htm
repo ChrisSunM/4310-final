@@ -1,0 +1,42 @@
+<html>
+
+<head>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/topojson.v3.min.js"></script>
+  <style>
+    #map {
+      fill: white;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>final project</h2>
+  <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+</body>
+<script>
+  const map = d3.select("#map")
+  const mapMargins = { t: 0, r: 0, b: 0, l: 0 }
+  const mapWidth = 1000
+  const mapHeight = 800
+  const mapArea = map.append("g")
+    .attr("transform", `translate(${mapMargins.l},${mapMargins.t})`)
+  let render = async function () {
+    let usMap = await d3.json("datasets/us-map.json")
+
+    // Creating map
+    let states = topojson.feature(usMap, usMap.objects.states);
+    let statesMesh = topojson.mesh(usMap, usMap.objects.states);
+    let projection = d3.geoAlbersUsa().fitSize([1000, 800], states);
+    let path = d3.geoPath().projection(projection);
+    mapArea.selectAll("path.state").data(states.features)
+      .attr("class", "state")
+      .join("path")
+      .attr("d", path)
+      .attr("stroke", "black")
+
+  }
+  render();
+</script>
+
+</html>
