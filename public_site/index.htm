@@ -35,6 +35,12 @@
       .attr("d", path)
       .attr("stroke", "black")
 
+    //dataset linked to in first document
+    let colleges = await d3.json("datasets/colleges.json")
+    console.log(colleges)
+    //new dataset found, linked in second document
+    let test = await d3.csv("datasets/hd2021.csv")
+    console.log(test)
   }
   render();
 </script>
