@@ -35,12 +35,35 @@
       .attr("d", path)
       .attr("stroke", "black")
 
-    //dataset linked to in first document
-    let colleges = await d3.json("datasets/colleges.json")
+
+    //dataset with actual demographics + college names
+    let colleges = await d3.csv("datasets/salary_potential.csv")
     console.log(colleges)
     //new dataset found, linked in second document
-    let test = await d3.csv("datasets/hd2021.csv")
-    console.log(test)
+    let largeData = await d3.csv("datasets/hd2021.csv")
+    console.log(largeData)
+
+    //dataset made from filtering and processing in jupyter notebook
+    let finalcolleges = await d3.csv("datasets/filtered_colleges.csv")
+    finalcolleges.forEach(d => {
+      d.Position = projection([d.LONGITUD, d.LATITUDE])
+    })
+    finalcolleges.forEach(d => {
+      mapArea.selectAll("circle").data(finalcolleges)
+        .join("circle")
+        .attr("cx", d => {
+          if (d.Position != null) {
+            return d.Position[0]
+          }
+        })
+        .attr("cy", d => {
+          if (d.Position != null) {
+            return d.Position[1]
+          }
+        })
+        .attr("r", 3)
+        .attr("fill", "gray")
+    })
   }
   render();
 </script>
