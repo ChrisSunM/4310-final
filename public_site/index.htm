@@ -48,8 +48,11 @@
     finalcolleges.forEach(d => {
       d.Position = projection([d.LONGITUD, d.LATITUDE])
     })
+    var clicked = null;
+    var k = 1;
+    let circles;
     finalcolleges.forEach(d => {
-      mapArea.selectAll("circle").data(finalcolleges)
+      circles = mapArea.selectAll("circle").data(finalcolleges)
         .join("circle")
         .attr("cx", d => {
           if (d.Position != null) {
@@ -61,9 +64,43 @@
             return d.Position[1]
           }
         })
-        .attr("r", 3)
+        .attr("r", 5 / k)
         .attr("fill", "gray")
+        .on("click", function (d) {
+          let selected = d3.select(this)
+          let selectedData = selected.datum();
+          if (clicked == this) {
+            selected.transition().duration(550).attr("fill", "gray")
+              .attr("r", 5)
+              .style("stroke", "none")
+            clicked = null;
+          } else {
+            let pastNode;
+            if (clicked == null) {
+              pastNode = d3.select(this)
+            } else {
+              pastNode = d3.select(clicked)
+            }
+            pastNode.transition().duration(550).attr("fill", "gray")
+              .attr("r", 5)
+              .style("stroke", "none")
+            selected.transition().duration(550).style('stroke', "black")
+              .style('stroke-width', "2px")
+              .attr('r', 50)
+          }
+          clicked = this;
+        })
+      //zooming
+      var zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
+      map.call(zoom);
+      function zoomed(event) {
+        mapArea.attr("transform", event.transform);
+        circles.attr("r", 5 / event.transform.k)
+        k = event.transform.k
+      }
     })
+
+
   }
   render();
 </script>
