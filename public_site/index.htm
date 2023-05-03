@@ -21,13 +21,13 @@
     <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
   </div>
   <div>
-    <svg id="graph" height="800" width="1000" style="border:1px solid black"></svg>
+    <svg id="graph" height="800" width="1100" style="border:1px solid black"></svg>
   </div>
 </body>
 <script>
   const map = d3.select("#map")
   const graph = d3.select("#graph")
-  const graphMargins = { t: 0, r: 0, b: 0, l: 0 }
+  const graphMargins = { t: 30, r: 30, b: 30, l: 30 }
   const mapMargins = { t: 0, r: 0, b: 0, l: 0 }
   const mapWidth = 1000
   const mapHeight = 800
@@ -215,11 +215,11 @@
 
     //customizable graph (base graph, y=avg starting income x=tuition (instate + outstate average))
     let incomeTuition = await d3.csv("datasets/TuitionIncome.csv")
-    let tuitionScale = d3.scaleLinear().domain([0, 75000]).range([20, 980])
-    let incomeScale = d3.scaleLinear().domain([32000, 92000]).range([680, 20])
+    let tuitionScale = d3.scaleLinear().domain([0, 75100]).range([30, 970])
+    let incomeScale = d3.scaleLinear().domain([32000, 92000]).range([670, 30])
     let leftAxis = d3.axisLeft(incomeScale)
     let leftGridlines = d3.axisLeft(incomeScale)
-      .tickSize(-980)
+      .tickSize(-970)
       .tickFormat('')
     graphArea.append('g')
       .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
@@ -228,14 +228,32 @@
       .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
       .call(leftGridlines)
     let bottomAxis = d3.axisBottom(tuitionScale)
+    let bottomGridlines = d3.axisBottom(tuitionScale)
+      .tickSize(-650)
+      .tickFormat('')
     graphArea.append("g")
       .attr("class", "x axis")
-      .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
+      .attr("transform", `translate(${graphMargins.l - 30}, ${graphMargins.t + 670})`)
       .call(bottomAxis);
+
+    graphArea.append('g')
+      .attr("class", "x gridlines")
+      .attr("transform", `translate(${graphMargins.l - 30}, ${graphMargins.t + 670})`)
+      .call(bottomGridlines)
 
     console.log(incomeTuition)
 
-    let graphCircles = graphArea.selectAll("circle").data()
+    let graphCircles = graphArea.selectAll("circle").data(incomeTuition)
+      .join('circle')
+      .attr("cx", d => {
+        let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+        return tuitionScale(avg)
+      })
+      .attr("cy", d => {
+        return incomeScale(parseInt(d["early_career_pay"]))
+      })
+      .attr("r", 5)
+      .attr("fill", "gray")
   }
 
   render();
