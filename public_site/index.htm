@@ -12,6 +12,11 @@
 
 <body>
   <h2>final project</h2>
+  <div>
+    <button id="button1">Early career pay</button>
+    <button id="button2">Mid career pay</button>
+  </div>
+  </br>
   <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
 </body>
 <script>
@@ -29,6 +34,20 @@
     let statesMesh = topojson.mesh(usMap, usMap.objects.states);
     let projection = d3.geoAlbersUsa().fitSize([1000, 800], states);
     let path = d3.geoPath().projection(projection);
+    let defs = mapArea.append("defs");
+
+    let linearGradient = defs.append("linearGradient")
+      .attr("id", "linear-gradient");
+
+    let legend = mapArea.append("g")
+      .attr("class", "legend")
+      .attr("transform", "translate(" + (200) + "," + (750) + ")");
+
+    legend.append("rect")
+      .attr("width", 650)
+      .attr("height", 20)
+      .style("fill", "url(#linear-gradient)");
+
     mapArea.selectAll("path.state").data(states.features)
       .attr("class", "state")
       .join("path")
@@ -45,14 +64,40 @@
 
     //dataset made from filtering and processing in jupyter notebook
     let finalcolleges = await d3.csv("datasets/filtered_colleges.csv")
+    console.log(finalcolleges)
+    // Use a map to link colleges and their associated data
+    let collegeMap = new Map(colleges.map(d => [d.name, d]));
+
     finalcolleges.forEach(d => {
       d.Position = projection([d.LONGITUD, d.LATITUDE])
-    })
-    var clicked = null;
-    var k = 1;
-    let circles;
+      let collegeInfo = collegeMap.get(d.INSTNM);
+      if (collegeInfo) {
+        d.early_career_pay = +collegeInfo.early_career_pay;
+        d.mid_career_pay = +collegeInfo.mid_career_pay;
+      }
+    });
+
+    // Now finalcolleges contains the merged data
+    console.log(finalcolleges);
+    // Custom interpolator function for red-orange-green gradient
+    function redOrangeGreen(t) {
+      return d3.interpolateRgb(
+        d3.interpolateRgb("red", "orange")(t),
+        "green"
+      )(t);
+    }
+
+    // Create color scales
+    let earlyCareerPayScale = d3.scaleSequential()
+      .domain(d3.extent(finalcolleges, d => +d.early_career_pay))
+      .interpolator(redOrangeGreen);
+
+    let midCareerPayScale = d3.scaleSequential()
+      .domain(d3.extent(finalcolleges, d => +d.mid_career_pay))
+      .interpolator(redOrangeGreen);
+
     finalcolleges.forEach(d => {
-      circles = mapArea.selectAll("circle").data(finalcolleges)
+      mapArea.selectAll("circle").data(finalcolleges)
         .join("circle")
         .attr("cx", d => {
           if (d.Position != null) {
@@ -64,43 +109,65 @@
             return d.Position[1]
           }
         })
-        .attr("r", 5 / k)
+        .attr("r", 3)
         .attr("fill", "gray")
-        .on("click", function (d) {
-          let selected = d3.select(this)
-          let selectedData = selected.datum();
-          if (clicked == this) {
-            selected.transition().duration(550).attr("fill", "gray")
-              .attr("r", 5)
-              .style("stroke", "none")
-            clicked = null;
-          } else {
-            let pastNode;
-            if (clicked == null) {
-              pastNode = d3.select(this)
-            } else {
-              pastNode = d3.select(clicked)
-            }
-            pastNode.transition().duration(550).attr("fill", "gray")
-              .attr("r", 5)
-              .style("stroke", "none")
-            selected.transition().duration(550).style('stroke', "black")
-              .style('stroke-width', "2px")
-              .attr('r', 50)
-          }
-          clicked = this;
-        })
-      //zooming
-      var zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
-      map.call(zoom);
-      function zoomed(event) {
-        mapArea.attr("transform", event.transform);
-        circles.attr("r", 5 / event.transform.k)
-        k = event.transform.k
-      }
     })
+    // Get references to the two buttons
+    const button1 = document.getElementById("button1");
+    const button2 = document.getElementById("button2");
 
+    // Function to update the colors based on the button clicked
+    function buttonClicked(button) {
+      let colorScale;
 
+      if (button === "Button 1") {
+        colorScale = earlyCareerPayScale;
+      } else if (button === "Button 2") {
+        colorScale = midCareerPayScale;
+      }
+
+      // Update the circles' colors based on the selected color scale
+      mapArea.selectAll("circle")
+        .attr("fill", d => colorScale(d[button === "Button 1" ? 'early_career_pay' : 'mid_career_pay']));
+
+      // Update the legend's gradient
+      linearGradient.selectAll("stop").remove();
+      linearGradient.selectAll("stop")
+        .data(colorScale.ticks().map((t, i, n) => ({ offset: `${100 * i / n.length}%`, color: colorScale(t) })))
+        .enter().append("stop")
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color);
+
+      // Update the legend's labels
+      legend.selectAll("text").remove();
+      legend.selectAll("text")
+        .data(colorScale.ticks())
+        .enter().append("text")
+        .attr("x", (d, i, n) => `${650 * i / n.length}`)
+        .attr("y", -5)
+        .style('fill', 'black')
+        .text(d => d);
+
+      // Add tick lines
+      legend.selectAll("line").remove();
+      legend.selectAll("line")
+        .data(colorScale.ticks())
+        .enter().append("line")
+        .attr("x1", (d, i, n) => `${650 * i / n.length}`)
+        .attr("x2", (d, i, n) => `${650 * i / n.length}`)
+        .attr("y1", 0)
+        .attr("y2", 6)
+        .style("stroke", "black");
+    }
+
+    // Add a click event listener to each button
+    button1.addEventListener("click", function () {
+      buttonClicked("Button 1");
+    });
+
+    button2.addEventListener("click", function () {
+      buttonClicked("Button 2");
+    });
   }
   render();
 </script>
