@@ -17,15 +17,26 @@
     <button id="button2">Mid career pay</button>
   </div>
   </br>
-  <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+  <div>
+    <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+  </div>
+  <div>
+    <svg id="graph" height="800" width="1000" style="border:1px solid black"></svg>
+  </div>
 </body>
 <script>
   const map = d3.select("#map")
+  const graph = d3.select("#graph")
+  const graphMargins = { t: 0, r: 0, b: 0, l: 0 }
   const mapMargins = { t: 0, r: 0, b: 0, l: 0 }
   const mapWidth = 1000
   const mapHeight = 800
+  const graphWidth = 1000
+  const graphHeight = 800
   const mapArea = map.append("g")
     .attr("transform", `translate(${mapMargins.l},${mapMargins.t})`)
+  const graphArea = graph.append("g")
+    .attr("transform", `translate(${graphMargins.l},${graphMargins.t})`)
   let render = async function () {
     let usMap = await d3.json("datasets/us-map.json")
 
@@ -57,10 +68,8 @@
 
     //dataset with actual demographics + college names
     let colleges = await d3.csv("datasets/salary_potential.csv")
-    console.log(colleges)
     //new dataset found, linked in second document
     let largeData = await d3.csv("datasets/hd2021.csv")
-    console.log(largeData)
 
     //dataset made from filtering and processing in jupyter notebook
     let finalcolleges = await d3.csv("datasets/filtered_colleges.csv")
@@ -96,8 +105,11 @@
       .domain(d3.extent(finalcolleges, d => +d.mid_career_pay))
       .interpolator(redOrangeGreen);
 
+    var clicked = null;
+    var k = 1;
+    let circles;
     finalcolleges.forEach(d => {
-      mapArea.selectAll("circle").data(finalcolleges)
+      circles = mapArea.selectAll("circle").data(finalcolleges)
         .join("circle")
         .attr("cx", d => {
           if (d.Position != null) {
@@ -109,9 +121,41 @@
             return d.Position[1]
           }
         })
-        .attr("r", 3)
+        .attr("r", 5 / k)
         .attr("fill", "gray")
+        .on("click", function (d) {
+          let selected = d3.select(this)
+          let selectedData = selected.datum();
+          if (clicked == this) {
+            selected.transition().duration(550).attr("fill", "gray")
+              .attr("r", 5)
+              .style("stroke", "none")
+            clicked = null;
+          } else {
+            let pastNode;
+            if (clicked == null) {
+              pastNode = d3.select(this)
+            } else {
+              pastNode = d3.select(clicked)
+            }
+            pastNode.transition().duration(550).attr("fill", "gray")
+              .attr("r", 5)
+              .style("stroke", "none")
+            selected.transition().duration(550).style('stroke', "black")
+              .style('stroke-width', "2px")
+              .attr('r', 50)
+          }
+          clicked = this;
+        })
     })
+    //zooming
+    var zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
+    map.call(zoom);
+    function zoomed(event) {
+      mapArea.attr("transform", event.transform);
+      circles.attr("r", 5 / event.transform.k)
+      k = event.transform.k
+    }
     // Get references to the two buttons
     const button1 = document.getElementById("button1");
     const button2 = document.getElementById("button2");
@@ -168,8 +212,41 @@
     button2.addEventListener("click", function () {
       buttonClicked("Button 2");
     });
+
+    //customizable graph (base graph, y=avg starting income x=tuition (instate + outstate average))
+    let incomeTuition = await d3.csv("datasets/TuitionIncome.csv")
+    let tuitionScale = d3.scaleLinear().domain([0, 75000]).range([20, 980])
+    let incomeScale = d3.scaleLinear().domain([32000, 92000]).range([680, 20])
+    let leftAxis = d3.axisLeft(incomeScale)
+    let leftGridlines = d3.axisLeft(incomeScale)
+      .tickSize(-980)
+      .tickFormat('')
+    graphArea.append('g')
+      .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
+      .call(leftAxis)
+    graphArea.append('g')
+      .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
+      .call(leftGridlines)
+    let bottomAxis = d3.axisBottom(tuitionScale)
+    graphArea.append("g")
+      .attr("class", "x axis")
+      .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
+      .call(bottomAxis);
+
+    console.log(incomeTuition)
+
+    let graphCircles = graphArea.selectAll("circle").data()
   }
+
   render();
+
+
+
+
+
+
+
+
 </script>
 
 </html>
