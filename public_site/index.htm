@@ -21,22 +21,44 @@
     <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
   </div>
   <div>
-    <svg id="graph" height="800" width="1100" style="border:1px solid black"></svg>
+    <svg id="scatterplot" height="800" width="1100" style="border:1px solid black"></svg>
   </div>
 </body>
 <script>
   const map = d3.select("#map")
-  const graph = d3.select("#graph")
+  const graph = d3.select("#scatterplot")
+
+
   const graphMargins = { t: 30, r: 30, b: 30, l: 30 }
   const mapMargins = { t: 0, r: 0, b: 0, l: 0 }
+
+  const plot = graph.append("g")
+
+
   const mapWidth = 1000
   const mapHeight = 800
-  const graphWidth = 1000
-  const graphHeight = 800
+
+  const graphWidth = 1000 - graphMargins.l - graphMargins.r
+  const graphHeight = 800 - graphMargins.t - graphMargins.b
+
   const mapArea = map.append("g")
     .attr("transform", `translate(${mapMargins.l},${mapMargins.t})`)
-  const graphArea = graph.append("g")
-    .attr("transform", `translate(${graphMargins.l},${graphMargins.t})`)
+
+  const yAxisArea = plot.append("g")
+    .attr("transform", "translate(" + (graphMargins.l) + "," + graphMargins.t + ")");
+  const xAxisArea = plot.append("g")
+    .attr("transform", "translate(" + graphMargins.l + "," + (graphHeight + graphMargins.t) + ")");
+  const graphArea = plot.append("g")
+    .attr("transform", "translate(" + graphMargins.l + "," + graphMargins.t + ")")
+
+  plot.append("defs").append("clipPath")
+    .attr("id", "chartClip")
+    .append("rect").attr("x", 0)
+    .attr("y", 0)
+    .attr("width", graphWidth)
+    .attr("height", graphHeight);
+  graphArea.attr("clip-path", "url(#chartClip)")
+
   let render = async function () {
     let usMap = await d3.json("datasets/us-map.json")
 
@@ -215,36 +237,26 @@
 
     //customizable graph (base graph, y=avg starting income x=tuition (instate + outstate average))
     let incomeTuition = await d3.csv("datasets/TuitionIncome.csv")
-    let tuitionScale = d3.scaleLinear().domain([0, 75100]).range([30, 970])
-    let incomeScale = d3.scaleLinear().domain([32000, 92000]).range([670, 30])
-    let leftAxis = d3.axisLeft(incomeScale)
-    let leftGridlines = d3.axisLeft(incomeScale)
-      .tickSize(-970)
-      .tickFormat('')
-    graphArea.append('g')
-      .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
-      .call(leftAxis)
-    graphArea.append('g')
-      .attr("transform", `translate(${graphMargins.l}, ${graphMargins.t})`)
-      .call(leftGridlines)
-    let bottomAxis = d3.axisBottom(tuitionScale)
-    let bottomGridlines = d3.axisBottom(tuitionScale)
-      .tickSize(-650)
-      .tickFormat('')
-    graphArea.append("g")
-      .attr("class", "x axis")
-      .attr("transform", `translate(${graphMargins.l - 30}, ${graphMargins.t + 670})`)
-      .call(bottomAxis);
+    //x scale
+    let tuitionScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
 
-    graphArea.append('g')
-      .attr("class", "x gridlines")
-      .attr("transform", `translate(${graphMargins.l - 30}, ${graphMargins.t + 670})`)
-      .call(bottomGridlines)
+    //y scale
+    let incomeScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
 
-    console.log(incomeTuition)
+    let leftAxis = d3.axisLeft(incomeScale).ticks(6).tickFormat(d3.format(".0s"));
+    yAxisArea.append("g").attr("class", "y axis").call(leftAxis);
+    let bottomAxis = d3.axisBottom(tuitionScale);
+    xAxisArea.append("g").attr("class", "x axis").call(bottomAxis);
+    /*
+        let yGridlines = d3.axisLeft(incomeScale).ticks(6).tickSize(-graphWidth - 30).tickFormat("");
+        yAxisArea.append("g").attr("class", "y gridlines").call(yGridlines);
+        let xGridlines = d3.axisBottom(tuitionScale).tickSize(-graphHeight - 30).tickFormat("");
+        xAxisArea.append("g").attr("class", "x gridlines").call(xGridlines);*/
 
-    let graphCircles = graphArea.selectAll("circle").data(incomeTuition)
-      .join('circle')
+
+    let viewport = graphArea.append("g");
+    let graphCircles = viewport.selectAll("circle.graph").data(incomeTuition)
+      .join("circle").attr("class", "graph")
       .attr("cx", d => {
         let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
         return tuitionScale(avg)
@@ -254,16 +266,46 @@
       })
       .attr("r", 5)
       .attr("fill", "gray")
+
+    graphArea.append("rect").attr("x", 0).attr("y", 0)
+      .attr("width", graphWidth).attr("height", graphHeight)
+      .attr("fill", "none")
+      .style("pointer-events", "all");
+    let zoomExtent = [[0, 0], [graphWidth, graphHeight]];
+    let translateExtent = [[-100, -100], [graphWidth + 100, graphHeight + 100]];
+    var plotZoom = d3.zoom()
+      .extent(zoomExtent)
+      .translateExtent(translateExtent)
+      .scaleExtent([1, 10])
+      .on("zoom", plotZoomed);
+
+    graphArea.call(plotZoom);
+
+
+    function plotZoomed({ transform }) {
+      viewport.attr("transform", transform);
+
+      let bottomScale = transform.rescaleX(tuitionScale);
+      let leftScale = transform.rescaleY(incomeScale);
+      bottomAxis.scale(bottomScale);
+      leftAxis.scale(leftScale);
+      /*
+      yGridlines.scale(txScale);
+      xGridlines.scale(tyScale);*/
+      d3.select("g.y.axis").call(bottomAxis);
+      d3.select("g.x.axis").call(leftAxis);
+
+      /*
+      d3.select("g.y.gridlines").call(yGridlines);
+      d3.select("g.x.gridlines").call(xGridlines);*/
+
+
+      graphCircles.attr("r", 5 / transform.k);
+    }
+    graphArea.call(plotZoom.transform, d3.zoomIdentity);
   }
 
   render();
-
-
-
-
-
-
-
 
 </script>
 
