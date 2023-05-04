@@ -30,6 +30,7 @@
     <option value="income">Early Income</option>
     <option value="tuition">Average Tuition</option>
     <option value="betterWorld">Percentage making the world better</option>
+    <option value="stem">Stem Percent</option>
   </select>
   <div>
     <svg id="scatterplot" height="800" width="1000"></svg>
@@ -38,7 +39,9 @@
     <option value="tuition">Average Tuition</option>
     <option value="income">Early Income</option>
     <option value="betterWorld">Percentage making the world better</option>
+    <option value="stem">Stem Percent</option>
   </select>
+  <button id="button3">Toggle school type</button>
 
 </body>
 <script>
@@ -330,7 +333,7 @@
         bottomScale = d3.scaleLinear().domain([30, 100]).range([15, graphWidth - 15])
         let bottomAxis = d3.axisBottom(bottomScale)
         d3.select("g.x.axis").call(bottomAxis)
-        d3.selectAll("circle.graph").transition().duration(1500).attr("cx", d => {
+        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
           if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
             return bottomScale(parseInt(d["make_world_better_percent"]))
           }
@@ -339,16 +342,23 @@
         bottomScale = d3.scaleLinear().domain([32000, 92000]).range([15, graphWidth - 15])
         let bottomAxis = d3.axisBottom(bottomScale)
         d3.select("g.x.axis").call(bottomAxis)
-        d3.selectAll("circle.graph").transition().duration(1500).attr("cx", d => {
+        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
           return bottomScale(parseInt(d["early_career_pay"]))
         })
       } else if (changeX == "tuition") {
         bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
         let bottomAxis = d3.axisBottom(bottomScale)
         d3.select("g.x.axis").call(bottomAxis)
-        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
           let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
           return bottomScale(avg)
+        })
+      } else if (changeX == "stem") {
+        bottomScale = d3.scaleLinear().domain([0, 100]).range([15, graphWidth - 15])
+        let bottomAxis = d3.axisBottom(bottomScale)
+        d3.select("g.x.axis").call(bottomAxis)
+        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
+          return bottomScale(d["stem_percent"])
         })
       }
 
@@ -364,7 +374,7 @@
         leftScale = d3.scaleLinear().domain([30, 100]).range([graphHeight - 15, 15])
         let leftAxis = d3.axisLeft(leftScale)
         d3.select("g.y.axis").call(leftAxis)
-        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
           if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
             return leftScale(parseInt(d["make_world_better_percent"]))
           }
@@ -373,23 +383,81 @@
         leftScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
         let leftAxis = d3.axisLeft(leftScale)
         d3.select("g.y.axis").call(leftAxis)
-        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
           return leftScale(parseInt(d["early_career_pay"]))
         })
       } else if (changeY == "tuition") {
         leftScale = d3.scaleLinear().domain([0, 75100]).range([graphHeight - 15, 15])
         let leftAxis = d3.axisLeft(leftScale)
         d3.select("g.y.axis").call(leftAxis)
-        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
           let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
           return leftScale(avg)
         })
+      } else if (changeY == "stem") {
+        leftScale = d3.scaleLinear().domain([0, 100]).range([graphHeight - 15, 15])
+        let leftAxis = d3.axisLeft(leftScale)
+        d3.select("g.y.axis").call(leftAxis)
+        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
+          return leftScale(d["stem_percent"])
+        })
       }
-
-
     }
+    //additional button filters for scatterplot
+    const button3 = document.getElementById("button3")
+    let filterClicked;
+    button3.onclick = function () {
+      if (filterClicked == true) {
+        filterClicked = false
+        d3.selectAll("#color").remove()
+        d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+          return "gray"
+        })
+      } else {
+        d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+          filterClicked = true
+          if (d["type"] == "Public") {
+            return "red"
+          } else if (d["type"] == "Private") {
+            return "blue"
+          } else {
+            return "green"
+          }
+        })
+        graphArea.append("text")
+          .attr("x", 870)
+          .attr("y", 100)
+          .transition().duration(700)
+          .text("Public")
+          .attr("id", "color")
+          .style("fill", "red")
+          .style("font-weight", "bold")
+          .style('pointer-events', "none")
+        graphArea.append("text")
+          .attr("x", 870)
+          .attr("y", 115)
+          .transition().duration(700)
+          .text("Private")
+          .attr("id", "color")
+          .style("fill", "blue")
+          .style("font-weight", "bold")
+          .style('pointer-events', "none")
+        graphArea.append("text")
+          .attr("x", 870)
+          .attr("y", 130)
+          .transition().duration(700)
+          .text("For Profit")
+          .attr("id", "color")
+          .style("fill", "green")
+          .style("font-weight", "bold")
+          .style('pointer-events', "none")
 
+        filterClicked = true;
+
+      }
+    }
   }
+
 
   render();
 
