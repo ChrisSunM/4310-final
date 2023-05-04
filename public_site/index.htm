@@ -7,6 +7,10 @@
     #map {
       fill: white;
     }
+
+    #x-select {
+      margin-left: 800px;
+    }
   </style>
 </head>
 
@@ -20,9 +24,22 @@
   <div>
     <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
   </div>
+  <br>
+  <br>
+  <select id="y-select">
+    <option value="income">Early Income</option>
+    <option value="tuition">Average Tuition</option>
+    <option value="betterWorld">Percentage making the world better</option>
+  </select>
   <div>
-    <svg id="scatterplot" height="800" width="1100" style="border:1px solid black"></svg>
+    <svg id="scatterplot" height="800" width="1000"></svg>
   </div>
+  <select id="x-select">
+    <option value="tuition">Average Tuition</option>
+    <option value="income">Early Income</option>
+    <option value="betterWorld">Percentage making the world better</option>
+  </select>
+
 </body>
 <script>
   const map = d3.select("#map")
@@ -238,14 +255,14 @@
     //customizable graph (base graph, y=avg starting income x=tuition (instate + outstate average))
     let incomeTuition = await d3.csv("datasets/TuitionIncome.csv")
     //x scale
-    let tuitionScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
+    let bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
 
     //y scale
-    let incomeScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
+    let leftScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
 
-    let leftAxis = d3.axisLeft(incomeScale).ticks(6).tickFormat(d3.format(".0s"));
+    let leftAxis = d3.axisLeft(leftScale).ticks(6).tickFormat(d3.format(".0s"));
     yAxisArea.append("g").attr("class", "y axis").call(leftAxis);
-    let bottomAxis = d3.axisBottom(tuitionScale);
+    let bottomAxis = d3.axisBottom(bottomScale);
     xAxisArea.append("g").attr("class", "x axis").call(bottomAxis);
     /*
         let yGridlines = d3.axisLeft(incomeScale).ticks(6).tickSize(-graphWidth - 30).tickFormat("");
@@ -259,10 +276,10 @@
       .join("circle").attr("class", "graph")
       .attr("cx", d => {
         let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
-        return tuitionScale(avg)
+        return bottomScale(avg)
       })
       .attr("cy", d => {
-        return incomeScale(parseInt(d["early_career_pay"]))
+        return leftScale(parseInt(d["early_career_pay"]))
       })
       .attr("r", 5)
       .attr("fill", "gray")
@@ -285,10 +302,10 @@
     function plotZoomed({ transform }) {
       viewport.attr("transform", transform);
 
-      let bottomScale = transform.rescaleX(tuitionScale);
-      let leftScale = transform.rescaleY(incomeScale);
-      bottomAxis.scale(bottomScale);
-      leftAxis.scale(leftScale);
+      let xScale = transform.rescaleX(bottomScale);
+      let yScale = transform.rescaleY(leftScale);
+      bottomAxis.scale(xScale);
+      leftAxis.scale(yScale);
       /*
       yGridlines.scale(txScale);
       xGridlines.scale(tyScale);*/
@@ -303,6 +320,75 @@
       graphCircles.attr("r", 5 / transform.k);
     }
     graphArea.call(plotZoom.transform, d3.zoomIdentity);
+
+    //changing x and y axis
+    document.getElementById("x-select").onchange = function () {
+      let changeX = document.getElementById("x-select").value
+
+      console.log(changeX)
+      if (changeX == "betterWorld") {
+        bottomScale = d3.scaleLinear().domain([30, 100]).range([15, graphWidth - 15])
+        let bottomAxis = d3.axisBottom(bottomScale)
+        d3.select("g.x.axis").call(bottomAxis)
+        d3.selectAll("circle.graph").transition().duration(1500).attr("cx", d => {
+          if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
+            return bottomScale(parseInt(d["make_world_better_percent"]))
+          }
+        })
+      } else if (changeX == "income") {
+        bottomScale = d3.scaleLinear().domain([32000, 92000]).range([15, graphWidth - 15])
+        let bottomAxis = d3.axisBottom(bottomScale)
+        d3.select("g.x.axis").call(bottomAxis)
+        d3.selectAll("circle.graph").transition().duration(1500).attr("cx", d => {
+          return bottomScale(parseInt(d["early_career_pay"]))
+        })
+      } else if (changeX == "tuition") {
+        bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
+        let bottomAxis = d3.axisBottom(bottomScale)
+        d3.select("g.x.axis").call(bottomAxis)
+        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+          let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+          return bottomScale(avg)
+        })
+      }
+
+
+
+
+    }
+    document.getElementById("y-select").onchange = function () {
+      let changeY = document.getElementById("y-select").value
+
+      console.log(changeY)
+      if (changeY == "betterWorld") {
+        leftScale = d3.scaleLinear().domain([30, 100]).range([graphHeight - 15, 15])
+        let leftAxis = d3.axisLeft(leftScale)
+        d3.select("g.y.axis").call(leftAxis)
+        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+          if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
+            return leftScale(parseInt(d["make_world_better_percent"]))
+          }
+        })
+      } else if (changeY == "income") {
+        leftScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
+        let leftAxis = d3.axisLeft(leftScale)
+        d3.select("g.y.axis").call(leftAxis)
+        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+          return leftScale(parseInt(d["early_career_pay"]))
+        })
+      } else if (changeY == "tuition") {
+        leftScale = d3.scaleLinear().domain([0, 75100]).range([graphHeight - 15, 15])
+        let leftAxis = d3.axisLeft(leftScale)
+        d3.select("g.y.axis").call(leftAxis)
+        d3.selectAll("circle.graph").transition().duration(1500).attr("cy", d => {
+          let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+          return leftScale(avg)
+        })
+      }
+
+
+    }
+
   }
 
   render();
