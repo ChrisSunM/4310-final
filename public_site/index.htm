@@ -107,29 +107,20 @@
       .attr("d", path)
       .attr("stroke", "black")
 
+    let finalData = await d3.csv("datasets/finalFiltered.csv")
 
-    //dataset with actual demographics + college names
-    let colleges = await d3.csv("datasets/salary_potential.csv")
-    //new dataset found, linked in second document
-    let largeData = await d3.csv("datasets/hd2021.csv")
 
-    //dataset made from filtering and processing in jupyter notebook
-    let finalcolleges = await d3.csv("datasets/filtered_colleges.csv")
-    console.log(finalcolleges)
+
+
+
     // Use a map to link colleges and their associated data
-    let collegeMap = new Map(colleges.map(d => [d.name, d]));
+    let collegeMap = new Map(finalData.map(d => [d.name, d]));
 
-    finalcolleges.forEach(d => {
+    finalData.forEach(d => {
       d.Position = projection([d.LONGITUD, d.LATITUDE])
-      let collegeInfo = collegeMap.get(d.INSTNM);
-      if (collegeInfo) {
-        d.early_career_pay = +collegeInfo.early_career_pay;
-        d.mid_career_pay = +collegeInfo.mid_career_pay;
-      }
     });
 
-    // Now finalcolleges contains the merged data
-    console.log(finalcolleges);
+
     // Custom interpolator function for red-orange-green gradient
     function redOrangeGreen(t) {
       return d3.interpolateRgb(
@@ -140,18 +131,18 @@
 
     // Create color scales
     let earlyCareerPayScale = d3.scaleSequential()
-      .domain(d3.extent(finalcolleges, d => +d.early_career_pay))
+      .domain(d3.extent(finalData, d => +d.early_career_pay))
       .interpolator(redOrangeGreen);
 
     let midCareerPayScale = d3.scaleSequential()
-      .domain(d3.extent(finalcolleges, d => +d.mid_career_pay))
+      .domain(d3.extent(finalData, d => +d.mid_career_pay))
       .interpolator(redOrangeGreen);
 
     var clicked = null;
     var k = 1;
     let circles;
-    finalcolleges.forEach(d => {
-      circles = mapArea.selectAll("circle").data(finalcolleges)
+    finalData.forEach(d => {
+      circles = mapArea.selectAll("circle").data(finalData)
         .join("circle")
         .attr("cx", d => {
           if (d.Position != null) {
@@ -256,7 +247,7 @@
     });
 
     //customizable graph (base graph, y=avg starting income x=tuition (instate + outstate average))
-    let incomeTuition = await d3.csv("datasets/TuitionIncome.csv")
+
     //x scale
     let bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
 
@@ -275,7 +266,7 @@
 
 
     let viewport = graphArea.append("g");
-    let graphCircles = viewport.selectAll("circle.graph").data(incomeTuition)
+    let graphCircles = viewport.selectAll("circle.graph").data(finalData)
       .join("circle").attr("class", "graph")
       .attr("cx", d => {
         let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
@@ -456,6 +447,10 @@
 
       }
     }
+
+
+    //3rd graph network Diagram (?)
+
   }
 
 
