@@ -8,8 +8,19 @@
       fill: white;
     }
 
-    #x-select {
-      margin-left: 800px;
+    #tooltip {
+      position: absolute;
+      padding: 2px;
+      pointer-events: none;
+      border-radius: 4px;
+      box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+      font: 15px sans-serif;
+      color: #030303;
+      line-height: 1;
+      padding: 12px;
+      background: rgb(250, 247, 247);
+      color: rgb(19, 18, 18);
+      border-radius: 2px;
     }
   </style>
 </head>
@@ -21,64 +32,17 @@
     <button id="button2">Mid career pay</button>
   </div>
   </br>
-  <div>
-    <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
-  </div>
-  <br>
-  <br>
-  <select id="y-select">
-    <option value="income">Early Income</option>
-    <option value="tuition">Average Tuition</option>
-    <option value="betterWorld">Percentage making the world better</option>
-    <option value="stem">Stem Percent</option>
-  </select>
-  <div>
-    <svg id="scatterplot" height="800" width="1000"></svg>
-  </div>
-  <select id="x-select">
-    <option value="tuition">Average Tuition</option>
-    <option value="income">Early Income</option>
-    <option value="betterWorld">Percentage making the world better</option>
-    <option value="stem">Stem Percent</option>
-  </select>
-  <button id="button3">Toggle school type</button>
+  <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+  <div id="tooltip"></div>
 
 </body>
 <script>
   const map = d3.select("#map")
-  const graph = d3.select("#scatterplot")
-
-
-  const graphMargins = { t: 30, r: 30, b: 30, l: 30 }
   const mapMargins = { t: 0, r: 0, b: 0, l: 0 }
-
-  const plot = graph.append("g")
-
-
   const mapWidth = 1000
   const mapHeight = 800
-
-  const graphWidth = 1000 - graphMargins.l - graphMargins.r
-  const graphHeight = 800 - graphMargins.t - graphMargins.b
-
   const mapArea = map.append("g")
     .attr("transform", `translate(${mapMargins.l},${mapMargins.t})`)
-
-  const yAxisArea = plot.append("g")
-    .attr("transform", "translate(" + (graphMargins.l) + "," + graphMargins.t + ")");
-  const xAxisArea = plot.append("g")
-    .attr("transform", "translate(" + graphMargins.l + "," + (graphHeight + graphMargins.t) + ")");
-  const graphArea = plot.append("g")
-    .attr("transform", "translate(" + graphMargins.l + "," + graphMargins.t + ")")
-
-  plot.append("defs").append("clipPath")
-    .attr("id", "chartClip")
-    .append("rect").attr("x", 0)
-    .attr("y", 0)
-    .attr("width", graphWidth)
-    .attr("height", graphHeight);
-  graphArea.attr("clip-path", "url(#chartClip)")
-
   let render = async function () {
     let usMap = await d3.json("datasets/us-map.json")
 
@@ -87,12 +51,12 @@
     let statesMesh = topojson.mesh(usMap, usMap.objects.states);
     let projection = d3.geoAlbersUsa().fitSize([1000, 800], states);
     let path = d3.geoPath().projection(projection);
-    let defs = mapArea.append("defs");
+    let defs = map.append("defs");
 
     let linearGradient = defs.append("linearGradient")
       .attr("id", "linear-gradient");
 
-    let legend = mapArea.append("g")
+    let legend = map.append("g")
       .attr("class", "legend")
       .attr("transform", "translate(" + (200) + "," + (750) + ")");
 
@@ -107,20 +71,79 @@
       .attr("d", path)
       .attr("stroke", "black")
 
-    let finalData = await d3.csv("datasets/finalFiltered.csv")
+    // Define the zoom function
+    function zoomed(event) {
+      mapArea.attr('transform', event.transform);
+    }
+
+    // Create a zoom behavior
+    let zoom = d3.zoom()
+      .scaleExtent([1, 10])
+      .on('zoom', zoomed);
+
+    // Create a brush behavior
+    let brush = d3.brush()
+      .extent([[0, 0], [mapWidth, mapHeight]])
+      .on('brush end', brushed);
+
+    // Add the brush to the map
+    mapArea.append('g')
+      .attr('class', 'brush')
+      .call(brush);
+
+    // Add the double click event listener to the map
+    mapArea.on('dblclick', resetZoomAndBrush);
+
+    // Define the resetZoomAndBrush function
+    function resetZoomAndBrush() {
+      // Transition the mapArea back to the original transform
+      mapArea.transition()
+        .duration(750)
+        .call(zoom.transform, d3.zoomIdentity);
+
+      // Remove the brush selection
+      map.select('.brush').call(brush.move, null);
+    }
 
 
 
+    //dataset with actual demographics + college names
+    let colleges = await d3.csv("datasets/salary_potential.csv")
+    console.log(colleges)
+    //new dataset found, linked in second document
+    let largeData = await d3.csv("datasets/hd2021.csv")
+    console.log(largeData)
 
+    //new dataset found, linked in third document
+    let tuitions = await d3.csv("datasets/tuition_cost.csv")
+    console.log('tuitions', tuitions)
 
+    //dataset made from filtering and processing in jupyter notebook
+    let finalcolleges = await d3.csv("datasets/filtered_colleges.csv")
+    console.log(finalcolleges)
     // Use a map to link colleges and their associated data
-    let collegeMap = new Map(finalData.map(d => [d.name, d]));
+    let collegeMap = new Map(colleges.map(d => [d.name, d]));
+    let tuitionsMap = new Map(tuitions.map(d => [d.name, d]));
 
-    finalData.forEach(d => {
+    finalcolleges.forEach(d => {
       d.Position = projection([d.LONGITUD, d.LATITUDE])
+      let collegeInfo = collegeMap.get(d.INSTNM);
+      let tuitionsInfo = tuitionsMap.get(d.INSTNM);
+      if (collegeInfo) {
+        d.early_career_pay = +collegeInfo.early_career_pay;
+        d.mid_career_pay = +collegeInfo.mid_career_pay;
+        d.state_name = collegeInfo.state_name;
+        d.stem_percent = collegeInfo.stem_percent;
+        if (tuitionsInfo != undefined) {
+          d.tuition = +tuitionsInfo.in_state_tuition;
+          d.type = tuitionsInfo.type;
+        }
+
+      }
     });
 
-
+    // Now finalcolleges contains the merged data
+    console.log(finalcolleges);
     // Custom interpolator function for red-orange-green gradient
     function redOrangeGreen(t) {
       return d3.interpolateRgb(
@@ -131,18 +154,15 @@
 
     // Create color scales
     let earlyCareerPayScale = d3.scaleSequential()
-      .domain(d3.extent(finalData, d => +d.early_career_pay))
+      .domain(d3.extent(finalcolleges, d => +d.early_career_pay))
       .interpolator(redOrangeGreen);
 
     let midCareerPayScale = d3.scaleSequential()
-      .domain(d3.extent(finalData, d => +d.mid_career_pay))
+      .domain(d3.extent(finalcolleges, d => +d.mid_career_pay))
       .interpolator(redOrangeGreen);
 
-    var clicked = null;
-    var k = 1;
-    let circles;
-    finalData.forEach(d => {
-      circles = mapArea.selectAll("circle").data(finalData)
+    finalcolleges.forEach(d => {
+      mapArea.selectAll("circle").data(finalcolleges)
         .join("circle")
         .attr("cx", d => {
           if (d.Position != null) {
@@ -154,41 +174,69 @@
             return d.Position[1]
           }
         })
-        .attr("r", 5 / k)
+        .attr("r", 5)
         .attr("fill", "gray")
-        .on("click", function (d) {
-          let selected = d3.select(this)
-          let selectedData = selected.datum();
-          if (clicked == this) {
-            selected.transition().duration(550).attr("fill", "gray")
-              .attr("r", 5)
-              .style("stroke", "none")
-            clicked = null;
+        .on("mousemove", function (event, d) {
+          d3.select(this).attr("stroke", "black").attr("stroke-width", "2px")
+            .attr('r', 8)
+
+          if (d.type != undefined) {
+            var text = "<b>Name:</b> " + d.INSTNM +
+              "<br/><b>State:</b> " + d.state_name +
+              "<br/><b>Early Career Pay: </b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
+              "<br/><b>Mid Career Pay: </b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
+              "<br/><b>STEM percent: </b>" + d.stem_percent +
+              "%<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(d.tuition) +
+              "<br/><b>Type:</b> " + d.type;
           } else {
-            let pastNode;
-            if (clicked == null) {
-              pastNode = d3.select(this)
-            } else {
-              pastNode = d3.select(clicked)
-            }
-            pastNode.transition().duration(550).attr("fill", "gray")
-              .attr("r", 5)
-              .style("stroke", "none")
-            selected.transition().duration(550).style('stroke', "black")
-              .style('stroke-width', "2px")
-              .attr('r', 50)
+            var text = "<b>Name:</b> " + d.INSTNM +
+              "<br/><b>State:</b> " + d.state_name +
+              "<br/><b>Early Career Pay:</b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
+              "<br/><b>Mid Career Pay:</b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
+              "<br/><b>STEM percent:</b> " + d.stem_percent + "%" +
+              "<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(d.tuition);
           }
-          clicked = this;
+
+          function formatNumberWithCommas(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          }
+
+
+          d3.select('#tooltip').html(text)
+            .style('left', (event.pageX + 25) + 'px')
+            .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
         })
+        .on('mouseleave', function () {
+          d3.select(this).attr("stroke", "none").attr('r', 5)
+          d3.select('#tooltip').style('opacity', 0)
+        });
     })
-    //zooming
-    var zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", zoomed);
-    map.call(zoom);
-    function zoomed(event) {
-      mapArea.attr("transform", event.transform);
-      circles.attr("r", 5 / event.transform.k)
-      k = event.transform.k
+
+    function brushed(event) {
+      // If there is no selection, do nothing
+      if (!event.selection) return;
+
+      // Get the current zoom transform
+      let currentZoom = d3.zoomTransform(mapArea.node());
+
+      // Get the selection coordinates and adjust them based on the current zoom level
+      let [[x0, y0], [x1, y1]] = event.selection;
+      let [[tx0, ty0], [tx1, ty1]] = [[x0, y0], [x1, y1]].map(d => currentZoom.invert(d));
+
+      // Calculate the new zoom parameters
+      let dx = tx1 - tx0;
+      let dy = ty1 - ty0;
+      let x = (tx0 + tx1) / 2;
+      let y = (ty0 + ty1) / 2;
+      let scale = Math.max(1, Math.min(10, 0.9 / Math.max(dx / mapWidth, dy / mapHeight)));
+      let translate = [mapWidth / 2 - scale * x, mapHeight / 2 - scale * y];
+
+      // Apply the new zoom parameters
+      mapArea.transition()
+        .duration(750)
+        .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
     }
+
     // Get references to the two buttons
     const button1 = document.getElementById("button1");
     const button2 = document.getElementById("button2");
@@ -245,217 +293,8 @@
     button2.addEventListener("click", function () {
       buttonClicked("Button 2");
     });
-
-    //customizable graph (base graph, y=avg starting income x=tuition (instate + outstate average))
-
-    //x scale
-    let bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
-
-    //y scale
-    let leftScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
-
-    let leftAxis = d3.axisLeft(leftScale).ticks(6).tickFormat(d3.format(".0s"));
-    yAxisArea.append("g").attr("class", "y axis").call(leftAxis);
-    let bottomAxis = d3.axisBottom(bottomScale);
-    xAxisArea.append("g").attr("class", "x axis").call(bottomAxis);
-    /*
-        let yGridlines = d3.axisLeft(incomeScale).ticks(6).tickSize(-graphWidth - 30).tickFormat("");
-        yAxisArea.append("g").attr("class", "y gridlines").call(yGridlines);
-        let xGridlines = d3.axisBottom(tuitionScale).tickSize(-graphHeight - 30).tickFormat("");
-        xAxisArea.append("g").attr("class", "x gridlines").call(xGridlines);*/
-
-
-    let viewport = graphArea.append("g");
-    let graphCircles = viewport.selectAll("circle.graph").data(finalData)
-      .join("circle").attr("class", "graph")
-      .attr("cx", d => {
-        let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
-        return bottomScale(avg)
-      })
-      .attr("cy", d => {
-        return leftScale(parseInt(d["early_career_pay"]))
-      })
-      .attr("r", 5)
-      .attr("fill", "gray")
-
-    graphArea.append("rect").attr("x", 0).attr("y", 0)
-      .attr("width", graphWidth).attr("height", graphHeight)
-      .attr("fill", "none")
-      .style("pointer-events", "all");
-    let zoomExtent = [[0, 0], [graphWidth, graphHeight]];
-    let translateExtent = [[-100, -100], [graphWidth + 100, graphHeight + 100]];
-    var plotZoom = d3.zoom()
-      .extent(zoomExtent)
-      .translateExtent(translateExtent)
-      .scaleExtent([1, 10])
-      .on("zoom", plotZoomed);
-
-    graphArea.call(plotZoom);
-
-
-    function plotZoomed({ transform }) {
-      viewport.attr("transform", transform);
-
-      let xScale = transform.rescaleX(bottomScale);
-      let yScale = transform.rescaleY(leftScale);
-      bottomAxis.scale(xScale);
-      leftAxis.scale(yScale);
-      /*
-      yGridlines.scale(txScale);
-      xGridlines.scale(tyScale);*/
-      d3.select("g.y.axis").call(leftAxis);
-      d3.select("g.x.axis").call(bottomAxis);
-
-      /*
-      d3.select("g.y.gridlines").call(yGridlines);
-      d3.select("g.x.gridlines").call(xGridlines);*/
-
-
-      graphCircles.attr("r", 5 / transform.k);
-    }
-    graphArea.call(plotZoom.transform, d3.zoomIdentity);
-
-    //changing x and y axis
-    document.getElementById("x-select").onchange = function () {
-      let changeX = document.getElementById("x-select").value
-
-      console.log(changeX)
-      if (changeX == "betterWorld") {
-        bottomScale = d3.scaleLinear().domain([30, 100]).range([15, graphWidth - 15])
-        let bottomAxis = d3.axisBottom(bottomScale)
-        d3.select("g.x.axis").call(bottomAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
-          if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
-            return bottomScale(parseInt(d["make_world_better_percent"]))
-          }
-        })
-      } else if (changeX == "income") {
-        bottomScale = d3.scaleLinear().domain([32000, 92000]).range([15, graphWidth - 15])
-        let bottomAxis = d3.axisBottom(bottomScale)
-        d3.select("g.x.axis").call(bottomAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
-          return bottomScale(parseInt(d["early_career_pay"]))
-        })
-      } else if (changeX == "tuition") {
-        bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
-        let bottomAxis = d3.axisBottom(bottomScale)
-        d3.select("g.x.axis").call(bottomAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
-          let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
-          return bottomScale(avg)
-        })
-      } else if (changeX == "stem") {
-        bottomScale = d3.scaleLinear().domain([0, 100]).range([15, graphWidth - 15])
-        let bottomAxis = d3.axisBottom(bottomScale)
-        d3.select("g.x.axis").call(bottomAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
-          return bottomScale(d["stem_percent"])
-        })
-      }
-
-
-
-
-    }
-    document.getElementById("y-select").onchange = function () {
-      let changeY = document.getElementById("y-select").value
-
-      console.log(changeY)
-      if (changeY == "betterWorld") {
-        leftScale = d3.scaleLinear().domain([30, 100]).range([graphHeight - 15, 15])
-        let leftAxis = d3.axisLeft(leftScale)
-        d3.select("g.y.axis").call(leftAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
-          if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
-            return leftScale(parseInt(d["make_world_better_percent"]))
-          }
-        })
-      } else if (changeY == "income") {
-        leftScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
-        let leftAxis = d3.axisLeft(leftScale)
-        d3.select("g.y.axis").call(leftAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
-          return leftScale(parseInt(d["early_career_pay"]))
-        })
-      } else if (changeY == "tuition") {
-        leftScale = d3.scaleLinear().domain([0, 75100]).range([graphHeight - 15, 15])
-        let leftAxis = d3.axisLeft(leftScale)
-        d3.select("g.y.axis").call(leftAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
-          let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
-          return leftScale(avg)
-        })
-      } else if (changeY == "stem") {
-        leftScale = d3.scaleLinear().domain([0, 100]).range([graphHeight - 15, 15])
-        let leftAxis = d3.axisLeft(leftScale)
-        d3.select("g.y.axis").call(leftAxis)
-        d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
-          return leftScale(d["stem_percent"])
-        })
-      }
-    }
-    //additional button filters for scatterplot
-    const button3 = document.getElementById("button3")
-    let filterClicked;
-    button3.onclick = function () {
-      if (filterClicked == true) {
-        filterClicked = false
-        d3.selectAll("#color").remove()
-        d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
-          return "gray"
-        })
-      } else {
-        d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
-          filterClicked = true
-          if (d["type"] == "Public") {
-            return "red"
-          } else if (d["type"] == "Private") {
-            return "blue"
-          } else {
-            return "green"
-          }
-        })
-        graphArea.append("text")
-          .attr("x", 870)
-          .attr("y", 100)
-          .transition().duration(700)
-          .text("Public")
-          .attr("id", "color")
-          .style("fill", "red")
-          .style("font-weight", "bold")
-          .style('pointer-events', "none")
-        graphArea.append("text")
-          .attr("x", 870)
-          .attr("y", 115)
-          .transition().duration(700)
-          .text("Private")
-          .attr("id", "color")
-          .style("fill", "blue")
-          .style("font-weight", "bold")
-          .style('pointer-events', "none")
-        graphArea.append("text")
-          .attr("x", 870)
-          .attr("y", 130)
-          .transition().duration(700)
-          .text("For Profit")
-          .attr("id", "color")
-          .style("fill", "green")
-          .style("font-weight", "bold")
-          .style('pointer-events', "none")
-
-        filterClicked = true;
-
-      }
-    }
-
-
-    //3rd graph network Diagram (?)
-
   }
-
-
   render();
-
 </script>
 
 </html>
