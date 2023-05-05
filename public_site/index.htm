@@ -72,8 +72,9 @@
     <option value="betterWorld">Percentage making the world better</option>
     <option value="stem">Stem Percent</option>
   </select>
-  <button id="button3">Toggle school type</button>
+  <button id="button3">Toggle School Type</button>
   <button id="button4">Toggle Gender Majority</button>
+  <button id="button5">Toggle Race Majority</button>
 </body>
 <script>
   const map = d3.select("#map")
@@ -549,9 +550,11 @@
           return "gray"
         }).style("opacity", "none")
       } else {
-        if (filter2Clicked == true) {
+        if (filter2Clicked == true || filter3Clicked == true) {
           filter2Clicked = false
+          filter3Clicked = false
           d3.selectAll("#color2").remove()
+          d3.selectAll("#color3").remove()
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filterClicked = true
             if (d["type"] == "Public") {
@@ -627,9 +630,11 @@
           return "gray"
         }).style("opacity", "none")
       } else {
-        if (filterClicked == true) {
+        if (filterClicked == true || filter3Clicked == true) {
           filterClicked = false
+          filter3Clicked = false
           d3.selectAll("#color").remove()
+          d3.selectAll("#color3").remove()
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filter2Clicked = true
             if (d["Men"] > d["Women"]) {
@@ -691,10 +696,253 @@
 
           filter2Clicked = true;
         }
-
       }
     }
-
+    const button5 = document.getElementById("button5")
+    let filter3Clicked;
+    button5.onclick = function () {
+      if (filter3Clicked == true) {
+        filter3Clicked = false
+        d3.selectAll("#color3").remove()
+        d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+          return "gray"
+        }).style("opacity", "none")
+      } else {
+        if (filterClicked == true || filter2Clicked == true) {
+          filterClicked = false
+          filter2Clicked = false
+          d3.selectAll("#color").remove()
+          d3.selectAll("#color2").remove()
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            filter3Clicked = true
+            if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Asian')"]) {
+              return "red"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'White')"]) {
+              return "blue"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'American Indian / Alaska Native')"]) {
+              return "green"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Black')"]) {
+              return "purple"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
+              return "yellow"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Native Hawaiian / Pacific Islander')"]) {
+              return "brown"
+            } else {
+              return "black"
+            }
+          }).style("opacity", 0.6)
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 100)
+            .transition().duration(700)
+            .text("Asian Majority")
+            .attr("id", "color3")
+            .style("fill", "red")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 115)
+            .transition().duration(700)
+            .text("White Majority")
+            .attr("id", "color3")
+            .style("fill", "blue")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 130)
+            .transition().duration(700)
+            .text("American Indian/Alaska Native Majority")
+            .attr("id", "color3")
+            .style("fill", "green")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 145)
+            .transition().duration(700)
+            .text("Black Majority")
+            .attr("id", "color3")
+            .style("fill", "purple")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 160)
+            .transition().duration(700)
+            .text("Hispanic Majority")
+            .attr("id", "color3")
+            .style("fill", "yellow")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 175)
+            .transition().duration(700)
+            .text("Native Hawaiian/Pacific Islander Majority")
+            .attr("id", "color3")
+            .style("fill", "brown")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 190)
+            .transition().duration(700)
+            .text("Other Majority")
+            .attr("id", "color3")
+            .style("fill", "black")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          filter3Clicked = true;
+        } else {
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            filter3Clicked = true
+            if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Asian')"]) {
+              return "red"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'White')"]) {
+              return "blue"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'American Indian / Alaska Native')"]) {
+              return "green"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Black')"]) {
+              return "purple"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
+              return "yellow"
+            } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+              Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                  Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                    d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Native Hawaiian / Pacific Islander')"]) {
+              return "brown"
+            } else {
+              return "black"
+            }
+          }).style("opacity", 0.6)
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 100)
+            .transition().duration(700)
+            .text("Asian Majority")
+            .attr("id", "color3")
+            .style("fill", "red")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 115)
+            .transition().duration(700)
+            .text("White Majority")
+            .attr("id", "color3")
+            .style("fill", "blue")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 130)
+            .transition().duration(700)
+            .text("American Indian/Alaska Native Majority")
+            .attr("id", "color3")
+            .style("fill", "green")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 145)
+            .transition().duration(700)
+            .text("Black Majority")
+            .attr("id", "color3")
+            .style("fill", "purple")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 160)
+            .transition().duration(700)
+            .text("Hispanic Majority")
+            .attr("id", "color3")
+            .style("fill", "yellow")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 175)
+            .transition().duration(700)
+            .text("Native Hawaiian/Pacific Islander Majority")
+            .attr("id", "color3")
+            .style("fill", "brown")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 650)
+            .attr("y", 190)
+            .transition().duration(700)
+            .text("Other Majority")
+            .attr("id", "color3")
+            .style("fill", "black")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          filter3Clicked = true;
+        }
+      }
+    }
     //3rd graph network Diagram (?)
 
   }
