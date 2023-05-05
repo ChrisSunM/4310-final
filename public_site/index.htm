@@ -199,6 +199,7 @@
         .on("mousemove", function (event, d) {
           d3.select(this).attr("stroke", "black").attr("stroke-width", 2 / k + "px")
             .attr('r', 15 / k)
+            .attr('fill', "red")
           let avgTuition = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
           if (d.type != undefined) {
             var text = "<b>Name:</b> " + d.name +
@@ -227,7 +228,7 @@
             .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
         })
         .on('mouseleave', function () {
-          d3.select(this).attr("stroke", "none").attr('r', 5 / k)
+          d3.select(this).attr("stroke", "none").attr('r', 5 / k).attr("fill", "grey")
           d3.select('#tooltip').style('opacity', 0)
         });
     })
