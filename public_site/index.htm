@@ -73,13 +73,16 @@
     <option value="stem">Stem Percent</option>
   </select>
   <button id="button3">Toggle school type</button>
+  <button id="button4">Toggle Gender Majority</button>
 </body>
 <script>
   const map = d3.select("#map")
   const graph = d3.select("#scatterplot")
 
+
   const graphMargins = { t: 30, r: 30, b: 30, l: 30 }
   const mapMargins = { t: 0, r: 0, b: 0, l: 0 }
+
   const plot = graph.append("g")
 
   const mapWidth = 1000
@@ -353,6 +356,25 @@
         let xGridlines = d3.axisBottom(tuitionScale).tickSize(-graphHeight - 30).tickFormat("");
         xAxisArea.append("g").attr("class", "x gridlines").call(xGridlines);*/
 
+    let format = d3.format(".2%")
+    //giving diversity percentages in data (all total enrollment values are same)
+    finalData.forEach(d => {
+      denom = d["('total_enrollment', 'Asian')"]
+      d["Indian_Native"] = format(d["('enrollment', 'American Indian / Alaska Native')"] / denom)
+      d["Asian"] = format(d["('enrollment', 'Asian')"] / denom)
+      d["Black"] = format(d["('enrollment', 'Black')"] / denom)
+      d["Hispanic"] = format(d["('enrollment', 'Hispanic')"] / denom)
+      d["Hawaiian_Islander"] = format(d["('enrollment', 'Native Hawaiian / Pacific Islander')"] / denom)
+      d["Non_Resident_Foreign"] = format(d["('enrollment', 'Non-Resident Foreign')"] / denom)
+      d["Total_minority"] = format(d["'enrollment', 'Total Minority')"] / denom)
+      d["two_or_more_races"] = format(d["('enrollment', 'Two Or More Races')"] / denom)
+      d["Unknown"] = format(d["('enrollment', 'Unknown')"] / denom)
+      d["White"] = format(d["('enrollment', 'White')"] / denom)
+      d["Women"] = format(d["('enrollment', 'Women')"] / denom)
+      d["Men"] = format(1 - (d["('enrollment', 'Women')"] / denom))
+      d["total"] = denom
+    })
+
     let j = 1
     let viewport = graphArea.append("g");
     let graphCircles = viewport.selectAll("circle.graph").data(finalData)
@@ -366,29 +388,24 @@
       })
       .attr("r", 5)
       .attr("fill", "gray")
+      .style("opacity", 0.6)
       .on("mousemove", function (event, d) {
-        d3.select(this).attr("stroke", "black").attr("stroke-width", 2 / j + "px")
-          .attr('r', 15 / j)
-          .attr('fill', "lavender")
-        let avgTuition = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
-        if (d.type != undefined) {
-          var text = "<b>Name:</b> " + d.name +
-            "<br/><b>State:</b> " + d.STABBR +
-            "<br/><b>Early Career Pay: </b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
-            "<br/><b>Mid Career Pay: </b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
-            "<br/><b>STEM percent: </b>" + d.stem_percent +
-            "%<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(avgTuition) +
-            "<br/><b>Type:</b> " + d.type +
-            "<br/><b>Make World Better percent:</b> " + d.make_world_better_percent;
-        } else {
-          var text = "<b>Name:</b> " + d.name +
-            "<br/><b>State:</b> " + d.STABBR +
-            "<br/><b>Early Career Pay:</b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
-            "<br/><b>Mid Career Pay:</b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
-            "<br/><b>STEM percent:</b> " + d.stem_percent + "%" +
-            "<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(avgTuiton) +
-            "<br/><b>Make World Better percent:</b> " + d.make_world_better_percent;
-        }
+        d3.select(this).attr("stroke", "black").attr("stroke-width", 4 / j + "px")
+          .attr('r', 15 / j).style("opacity", 1)
+        var text = "<b>Name:</b> " + d.name +
+          "<br/><br/><b>Racial Diversity</b>" +
+          "<br/>American Indian/Alaska Native: " + d.Indian_Native +
+          "<br/>Asian: " + d.Asian +
+          "<br/Black: " + d.Black +
+          "<br/>Hispanic: " + d.Hispanic +
+          "%<br/>Native Hawaiian/Pacific Islander: " + d.Hawaiian_Islander +
+          "<br/>Non Resident Foreign: " + d.Non_Resident_Foreign +
+          "<br/>White: " + d.White +
+          "<br/>Unknown: " + d.Unknown +
+          "<br/><br/><b>Gender Diversity: </b>" +
+          "<br/>Women: " + d.Women +
+          "<br/>Men: " + d.Men;
+
 
         function formatNumberWithCommas(number) {
           return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -400,7 +417,7 @@
           .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
       })
       .on('mouseleave', function () {
-        d3.select(this).attr("stroke", "none").attr('r', 5 / j).attr("fill", "grey")
+        d3.select(this).attr("stroke", "none").attr('r', 5 / j).style("opacity", "0.6")
         d3.select('#tooltipGraph').style('opacity', 0)
       });
 
@@ -440,6 +457,7 @@
       j = transform.k
     }
     graphArea.call(plotZoom.transform, d3.zoomIdentity);
+
 
     //changing x and y axis
     document.getElementById("x-select").onchange = function () {
@@ -529,51 +547,153 @@
         d3.selectAll("#color").remove()
         d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
           return "gray"
-        })
+        }).style("opacity", "none")
       } else {
-        d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
-          filterClicked = true
-          if (d["type"] == "Public") {
-            return "red"
-          } else if (d["type"] == "Private") {
-            return "blue"
-          } else {
-            return "green"
-          }
-        })
-        graphArea.append("text")
-          .attr("x", 870)
-          .attr("y", 100)
-          .transition().duration(700)
-          .text("Public")
-          .attr("id", "color")
-          .style("fill", "red")
-          .style("font-weight", "bold")
-          .style('pointer-events', "none")
-        graphArea.append("text")
-          .attr("x", 870)
-          .attr("y", 115)
-          .transition().duration(700)
-          .text("Private")
-          .attr("id", "color")
-          .style("fill", "blue")
-          .style("font-weight", "bold")
-          .style('pointer-events', "none")
-        graphArea.append("text")
-          .attr("x", 870)
-          .attr("y", 130)
-          .transition().duration(700)
-          .text("For Profit")
-          .attr("id", "color")
-          .style("fill", "green")
-          .style("font-weight", "bold")
-          .style('pointer-events', "none")
+        if (filter2Clicked == true) {
+          filter2Clicked = false
+          d3.selectAll("#color2").remove()
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            filterClicked = true
+            if (d["type"] == "Public") {
+              return "red"
+            } else {
+              return "blue"
+            }
+          }).style("opacity", 0.6)
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 100)
+            .transition().duration(700)
+            .text("Public")
+            .attr("id", "color")
+            .style("fill", "red")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 115)
+            .transition().duration(700)
+            .text("Private")
+            .attr("id", "color")
+            .style("fill", "blue")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
 
-        filterClicked = true;
+          filterClicked = true;
+        } else {
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            filterClicked = true
+            if (d["type"] == "Public") {
+              return "red"
+            } else {
+              return "blue"
+            }
+          }).style("opacity", 0.6)
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 100)
+            .transition().duration(700)
+            .text("Public")
+            .attr("id", "color")
+            .style("fill", "red")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 115)
+            .transition().duration(700)
+            .text("Private")
+            .attr("id", "color")
+            .style("fill", "blue")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+
+          filterClicked = true;
+        }
 
       }
     }
+    const button4 = document.getElementById("button4")
+    let filter2Clicked;
+    button4.onclick = function () {
+      if (filter2Clicked == true) {
+        filter2Clicked = false
+        d3.selectAll("#color2").remove()
+        d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+          return "gray"
+        }).style("opacity", "none")
+      } else {
+        if (filterClicked == true) {
+          filterClicked = false
+          d3.selectAll("#color").remove()
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            filter2Clicked = true
+            if (d["Men"] > d["Women"]) {
+              return "red"
+            } else {
+              return "blue"
+            }
+          }).style("opacity", 0.6)
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 100)
+            .transition().duration(700)
+            .text("Men Majority")
+            .attr("id", "color2")
+            .style("fill", "red")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 115)
+            .transition().duration(700)
+            .text("Women Majority")
+            .attr("id", "color2")
+            .style("fill", "blue")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
+          filter2Clicked = true;
+        } else {
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            filter2Clicked = true
+            if (d["Men"] > d["Women"]) {
+              return "red"
+            } else {
+              return "blue"
+            }
+          }).style("opacity", 0.6)
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 100)
+            .transition().duration(700)
+            .text("Men Majority")
+            .attr("id", "color2")
+            .style("fill", "red")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style("font-size", "16px")
+          graphArea.append("text")
+            .attr("x", 810)
+            .attr("y", 115)
+            .transition().duration(700)
+            .text("Women Majority")
+            .attr("id", "color2")
+            .style("fill", "blue")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "16px")
 
+          filter2Clicked = true;
+        }
+
+      }
+    }
 
     //3rd graph network Diagram (?)
 
