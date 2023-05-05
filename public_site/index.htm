@@ -199,7 +199,7 @@
         .on("mousemove", function (event, d) {
           d3.select(this).attr("stroke", "black").attr("stroke-width", 2 / k + "px")
             .attr('r', 15 / k)
-            .attr('fill', "red")
+            .attr('fill', "blue")
           let avgTuition = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
           if (d.type != undefined) {
             var text = "<b>Name:</b> " + d.name +
