@@ -23,6 +23,21 @@
       border-radius: 2px;
     }
 
+    #tooltipGraph {
+      position: absolute;
+      padding: 2px;
+      pointer-events: none;
+      border-radius: 4px;
+      box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+      font: 15px sans-serif;
+      color: #030303;
+      line-height: 1;
+      padding: 12px;
+      background: rgb(250, 247, 247);
+      color: rgb(19, 18, 18);
+      border-radius: 2px;
+    }
+
     #x-select {
       margin-left: 800px;
     }
@@ -50,6 +65,7 @@
   <div>
     <svg id="scatterplot" height="800" width="1000"></svg>
   </div>
+  <div id="tooltipGraph"></div>
   <select id="x-select">
     <option value="tuition">Average Tuition</option>
     <option value="income">Early Income</option>
@@ -78,7 +94,7 @@
   const yAxisArea = plot.append("g")
     .attr("transform", "translate(" + (graphMargins.l) + "," + graphMargins.t + ")");
   const xAxisArea = plot.append("g")
-    .attr("transform", "translate(" + graphMargins.l + "," + (graphHeight + graphMargins.t) + ")");
+    .attr("transform", "translate(" + (graphMargins.l) + "," + (graphHeight + graphMargins.t) + ")");
   const graphArea = plot.append("g")
     .attr("transform", "translate(" + graphMargins.l + "," + graphMargins.t + ")")
 
@@ -89,7 +105,11 @@
     .attr("width", graphWidth)
     .attr("height", graphHeight);
   graphArea.attr("clip-path", "url(#chartClip)")
-    .attr("transform", `translate(${mapMargins.l},${mapMargins.t})`)
+    .attr("transform", `translate(${graphMargins.l},${graphMargins.t})`)
+  graphArea.append("rect").attr("x", 0).attr("y", 0)
+    .attr("width", graphWidth).attr("height", graphHeight)
+    .attr("fill", "none")
+    .style("pointer-events", "all");
 
   let render = async function () {
     let usMap = await d3.json("datasets/us-map.json")
@@ -333,7 +353,7 @@
         let xGridlines = d3.axisBottom(tuitionScale).tickSize(-graphHeight - 30).tickFormat("");
         xAxisArea.append("g").attr("class", "x gridlines").call(xGridlines);*/
 
-
+    let j = 1
     let viewport = graphArea.append("g");
     let graphCircles = viewport.selectAll("circle.graph").data(finalData)
       .join("circle").attr("class", "graph")
@@ -346,11 +366,47 @@
       })
       .attr("r", 5)
       .attr("fill", "gray")
+      .on("mousemove", function (event, d) {
+        d3.select(this).attr("stroke", "black").attr("stroke-width", 2 / j + "px")
+          .attr('r', 15 / j)
+          .attr('fill', "lavender")
+        let avgTuition = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+        if (d.type != undefined) {
+          var text = "<b>Name:</b> " + d.name +
+            "<br/><b>State:</b> " + d.STABBR +
+            "<br/><b>Early Career Pay: </b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
+            "<br/><b>Mid Career Pay: </b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
+            "<br/><b>STEM percent: </b>" + d.stem_percent +
+            "%<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(avgTuition) +
+            "<br/><b>Type:</b> " + d.type +
+            "<br/><b>Make World Better percent:</b> " + d.make_world_better_percent;
+        } else {
+          var text = "<b>Name:</b> " + d.name +
+            "<br/><b>State:</b> " + d.STABBR +
+            "<br/><b>Early Career Pay:</b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
+            "<br/><b>Mid Career Pay:</b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
+            "<br/><b>STEM percent:</b> " + d.stem_percent + "%" +
+            "<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(avgTuiton) +
+            "<br/><b>Make World Better percent:</b> " + d.make_world_better_percent;
+        }
 
-    graphArea.append("rect").attr("x", 0).attr("y", 0)
-      .attr("width", graphWidth).attr("height", graphHeight)
-      .attr("fill", "none")
-      .style("pointer-events", "all");
+        function formatNumberWithCommas(number) {
+          return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+
+        d3.select('#tooltipGraph').html(text)
+          .style('left', (event.pageX + 25) + 'px')
+          .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+      })
+      .on('mouseleave', function () {
+        d3.select(this).attr("stroke", "none").attr('r', 5 / j).attr("fill", "grey")
+        d3.select('#tooltipGraph').style('opacity', 0)
+      });
+
+
+
+
     let zoomExtent = [[0, 0], [graphWidth, graphHeight]];
     let translateExtent = [[-100, -100], [graphWidth + 100, graphHeight + 100]];
     var plotZoom = d3.zoom()
@@ -381,6 +437,7 @@
 
 
       graphCircles.attr("r", 5 / transform.k);
+      j = transform.k
     }
     graphArea.call(plotZoom.transform, d3.zoomIdentity);
 
