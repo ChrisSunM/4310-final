@@ -108,6 +108,20 @@
   <button id="button3">Toggle School Type</button>
   <button id="button4">Toggle Gender Majority</button>
   <button id="button5">Toggle Race Majority</button>
+  </br>
+  </br>
+
+  <div id="spider">
+    <div>
+      <div id="first-college">
+        Select First College:
+      </div>
+      <div id="second-college">
+        Select Second College:
+      </div>
+    </div>
+    <div id="radar"></div>
+  </div>
 
 </body>
 <script>
@@ -186,7 +200,6 @@
       .attr("stroke", "black")
 
     let finalData = await d3.csv("datasets/finalFiltered.csv")
-    console.log(finalData)
 
     let k = 1
     // Define the zoom function
@@ -1133,10 +1146,230 @@
       }
     }
 
+    // Sort the dataset alphabetically by college name
+    finalData.sort((a, b) => a.name.localeCompare(b.name));
+    // Create the first dropdown
+    const firstCollegeDropdown = d3.select("#first-college")
+      .append("select")
+      .attr("id", "first-college-dropdown");
 
+    firstCollegeDropdown.selectAll("option")
+      .data(finalData)
+      .enter()
+      .append("option")
+      .text(d => d.name)
+      .attr("value", d => d.name);
+
+    var first = 'Adams State University'
+    var second = 'Agnes Scott College'
+
+    // Create the second dropdown with a different default value
+    const secondCollegeDropdown = d3.select("#second-college")
+      .append("select")
+      .attr("id", "second-college-dropdown");
+
+    secondCollegeDropdown.selectAll("option")
+      .data(finalData)
+      .enter()
+      .append("option")
+      .text(d => d.name)
+      .attr("value", d => d.name)
+      .attr("selected", (d, i) => i === 1 ? true : null); // Set the default selected index
+
+    // Add event listeners to both dropdowns
+    firstCollegeDropdown.on("change", function () {
+      console.log("First college dropdown changed to:", this.value);
+      first = this.value
+      spiderChart(first, second)
+    });
+
+    secondCollegeDropdown.on("change", function () {
+      console.log("Second college dropdown changed to:", this.value);
+      second = this.value
+      spiderChart(first, second)
+    });
+
+    function spiderChart(firstCollege, secondCollege) {
+
+      d3.select('#radarChart').remove()
+      console.log(finalData)
+
+      //  mid_career_pay, out_of_state_total, stem_percentage
+      var columns = ['mid_career_pay', 'out_of_state_total', 'stem_percent']
+
+      firstCollegeData = finalData.filter(d => d.name == firstCollege)
+      secondCollegeData = finalData.filter(d => d.name == secondCollege)
+
+      firstCollegeChartData = [];
+      secondCollegeChartData = [];
+
+      var values1 = [];
+      var values2 = [];
+
+      columns.forEach(col => {
+        values1.push(+firstCollegeData[0][col]);
+        values2.push(+secondCollegeData[0][col]);
+      });
+
+      firstCollegeChartData.push({ name: firstCollege, values: values1 });
+      secondCollegeChartData.push({ name: secondCollege, values: values2 });
+
+      // Set the dimensions and margins for the SVG
+      const margin = { top: 40, right: 50, bottom: 50, left: 50 };
+      const width = 800 - margin.left - margin.right;
+      const height = 800 - margin.top - margin.bottom;
+
+      // Set up the SVG element
+      const svg = d3.select("#radar")
+        .append("svg").attr('id', 'radarChart')
+        .attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left + width / 2}, ${margin.top + height / 2})`);
+
+      function radarChartPath(data, angleScale, radialScale, columns) {
+        const pathData = data.values.map((value, index) => {
+          const angle = angleScale(index);
+          const x = radialScale(value) * Math.sin(angle);
+          const y = -radialScale(value) * Math.cos(angle);
+          return [x, y];
+        });
+
+        pathData.push(pathData[0]); // Close the path
+        const path = d3.line()(pathData);
+        return path;
+      }
+
+
+      // Scales and settings for radar chart
+      const angleScale = d3.scaleLinear()
+        .domain([0, columns.length])
+        .range([0, 2 * Math.PI]);
+
+      const radius = Math.min(width, height) / 2 - 90;
+
+      // Find the maximum value in the 'values' array across all data points
+      const maxValue = Math.max(...firstCollegeChartData.map(d => Math.max(...d.values)), ...secondCollegeChartData.map(d => Math.max(...d.values)));
+      console.log(maxValue)
+
+      // Define the radial scale with the updated domain
+      const radialScale = d3.scaleLinear()
+        .domain([0, maxValue])
+        .range([0, radius]);
+
+      // Draw radial lines
+      const radialLines = svg.selectAll(".radial-line")
+        .data(columns)
+        .enter()
+        .append("line")
+        .attr("class", "radial-line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", (d, i) => radialScale(maxValue) * Math.sin(angleScale(i)))
+        .attr("y2", (d, i) => -radialScale(maxValue) * Math.cos(angleScale(i)))
+        .attr("stroke", "black")
+        .attr("stroke-width", 1);
+
+      // Draw axis labels
+      const axisLabels = svg.selectAll(".axis-label")
+        .data(columns)
+        .enter()
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("x", (d, i) => (radius + 50) * Math.sin(angleScale(i)))
+        .attr("y", (d, i) => -(radius + 50) * Math.cos(angleScale(i)))
+        .text(d => d)
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle");
+      // Draw axis ticks
+      const numTicks = 2; // Define the number of ticks for each axis
+
+      columns.forEach((col, i) => {
+        const tickValues = d3.range(1, numTicks + 1).map(d => d * (maxValue / numTicks));
+
+        tickValues.forEach(tick => {
+          svg.append("line")
+            .attr("class", "tick-line")
+            .attr("x1", radialScale(tick) * Math.sin(angleScale(i)))
+            .attr("y1", -radialScale(tick) * Math.cos(angleScale(i)))
+            .attr("x2", radialScale(tick) * Math.sin(angleScale((i + 1) % columns.length)))
+            .attr("y2", -radialScale(tick) * Math.cos(angleScale((i + 1) % columns.length)))
+            .attr("stroke", "lightgray")
+            .attr("stroke-width", 1);
+        });
+
+        // Draw tick values text
+        const tickTextPadding = 5;
+        tickValues.forEach(tick => {
+          svg.append("text")
+            .attr("class", "tick-text")
+            .attr("x", (radialScale(tick) + tickTextPadding) * Math.sin(angleScale(i)))
+            .attr("y", -(radialScale(tick) + tickTextPadding) * Math.cos(angleScale(i)))
+            .text(tick.toFixed(1))
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle")
+            .attr("font-size", "10px")
+            .attr("fill", "black");
+        });
+      });
+      // Draw filled polygons for radar chart
+      const radarPolygons = svg.selectAll(".radar-polygon")
+        .data(firstCollegeChartData)
+        .enter()
+        .append("path")
+        .attr("class", "radar-polygon")
+        .attr("d", d => radarChartPath({ values: d.values.map(() => 0) }, angleScale, radialScale, columns))
+        .attr("stroke", "blue")
+        .attr("fill", "blue")
+        .attr("fill-opacity", 0.5)
+        .attr("stroke-width", 2)
+        .on("mousemove", function (event, d) {
+          d3.select(this).attr("stroke", "black").attr("stroke-width", '3px')
+
+          d3.select('#tooltip').html("<b>College: </b> " + d.name)
+            .style('left', (event.pageX + 25) + 'px')
+            .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+        })
+        .on('mouseleave', function () {
+          d3.select(this).attr("stroke-width", '2px').attr('stroke', 'blue')
+          d3.select('#tooltip').style('opacity', 0)
+        })
+        .transition()
+        .duration(500) // Set the duration of the animation in milliseconds
+        .attr("d", d => radarChartPath(d, angleScale, radialScale, columns));
+
+      // Draw filled polygons for radar chart (second college)
+      const radarPolygons2 = svg.selectAll(".radar-polygon2")
+        .data(secondCollegeChartData)
+        .enter()
+        .append("path")
+        .attr("class", "radar-polygon2")
+        .attr("d", d => radarChartPath({ values: d.values.map(() => 0) }, angleScale, radialScale, columns))
+        .attr("stroke", "red")
+        .attr("fill", "red")
+        .attr("fill-opacity", 0.5)
+        .attr("stroke-width", 2)
+        .on("mousemove", function (event, d) {
+          d3.select(this).attr("stroke", "black").attr("stroke-width", '3px')
+
+          d3.select('#tooltip').html("<b>College: </b> " + d.name)
+            .style('left', (event.pageX + 25) + 'px')
+            .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+        })
+        .on('mouseleave', function () {
+          d3.select(this).attr("stroke-width", '2px').attr('stroke', 'red')
+          d3.select('#tooltip').style('opacity', 0)
+        })
+        .transition()
+        .duration(500) // Set the duration of the animation in milliseconds
+        .attr("d", d => radarChartPath(d, angleScale, radialScale, columns));
+    }
+
+    spiderChart(first, second)
 
     //TO DO move buttons so that it looks better in deploy; style buttons
   }
+
+
   render();
 </script>
 
