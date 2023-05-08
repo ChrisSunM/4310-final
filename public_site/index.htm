@@ -64,6 +64,7 @@
   </select>
   <div>
     <svg id="scatterplot" height="800" width="1000"></svg>
+    <svg id="pie" height="600" width="400"></svg>
   </div>
   <div id="tooltipGraph"></div>
   <select id="x-select">
@@ -72,13 +73,16 @@
     <option value="betterWorld">Percentage making the world better</option>
     <option value="stem">Stem Percent</option>
   </select>
+
   <button id="button3">Toggle School Type</button>
   <button id="button4">Toggle Gender Majority</button>
   <button id="button5">Toggle Race Majority</button>
+
 </body>
 <script>
   const map = d3.select("#map")
   const graph = d3.select("#scatterplot")
+  const pieSvg = d3.select("#pie")
 
 
   const graphMargins = { t: 30, r: 30, b: 30, l: 30 }
@@ -91,6 +95,9 @@
 
   const graphWidth = 1000 - graphMargins.l - graphMargins.r
   const graphHeight = 800 - graphMargins.t - graphMargins.b
+
+  const pieSvgArea = pieSvg.append("g")
+    .attr("transform", "translate(" + 200 + "," + 200 + ")")
 
   const mapArea = map.append("g")
     .attr("transform", `translate(${mapMargins.l},${mapMargins.t})`)
@@ -373,6 +380,7 @@
       d["White"] = format(d["('enrollment', 'White')"] / denom)
       d["Women"] = format(d["('enrollment', 'Women')"] / denom)
       d["Men"] = format(1 - (d["('enrollment', 'Women')"] / denom))
+      d["('enrollment', 'Men')"] = parseInt(denom) - parseInt(d["('enrollment', 'Women')"])
       d["total"] = denom
     })
 
@@ -391,6 +399,7 @@
       .attr("fill", "gray")
       .style("opacity", 0.6)
       .on("mousemove", function (event, d) {
+        let data = d
         d3.select(this).attr("stroke", "black").attr("stroke-width", 4 / j + "px")
           .attr('r', 15 / j).style("opacity", 1)
         var text = "<b>Name:</b> " + d.name +
@@ -408,19 +417,61 @@
           "<br/>Men: " + d.Men;
 
 
-        function formatNumberWithCommas(number) {
-          return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
 
         d3.select('#tooltipGraph').html(text)
           .style('left', (event.pageX + 25) + 'px')
           .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+
+
+        //Reference: https://d3-graph-gallery.com/pie.html
+        let pieData = [parseInt(d["('enrollment', 'Women')"]), (d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"])]
+        let pieScale = d3.scaleOrdinal(["#4665fc", "#f62d2d"])
+        let pie = d3.pie().value(d => {
+          return d
+        })
+
+        let arcGen = d3.arc().innerRadius(0).outerRadius(200)
+
+        pieSvgArea.selectAll('arc').data(pie(pieData))
+          .enter().append("path")
+          .attr("d", arcGen)
+          .attr("class", "arc")
+          .attr("fill", d => {
+            return pieScale(d.data)
+          })
+
+
+        pieSvgArea.selectAll("arc").data(pie(pieData))
+          .enter().append("text")
+          .text(d => {
+
+            if (parseInt(data["('enrollment', 'Women')"]) < parseInt(data["('enrollment', 'Men')"])) {
+              if (d.index == 1) {
+                return "Women: " + d.value
+              } else {
+                return "Men: " + d.value
+              }
+            } else {
+              if (d.index == 1) {
+                return "Men: " + d.value
+              } else {
+                return "Women: " + d.value
+              }
+            }
+          })
+          .attr("transform", d => {
+            return "translate(" + arcGen.centroid(d) + ")"
+          })
+          .style("text-anchor", "middle")
+
       })
       .on('mouseleave', function () {
         d3.select(this).attr("stroke", "none").attr('r', 5 / j).style("opacity", "0.6")
         d3.select('#tooltipGraph').style('opacity', 0)
+        pieSvgArea.selectAll("*").remove()
       });
+
+
 
 
 
@@ -637,7 +688,7 @@
           d3.selectAll("#color3").remove()
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filter2Clicked = true
-            if (d["Men"] > d["Women"]) {
+            if (parseInt(d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"]) > parseInt(d["('enrollment', 'Women')"])) {
               return "red"
             } else {
               return "blue"
@@ -667,7 +718,7 @@
         } else {
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filter2Clicked = true
-            if (d["Men"] > d["Women"]) {
+            if (parseInt(d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"]) > parseInt(d["('enrollment', 'Women')"])) {
               return "red"
             } else {
               return "blue"
@@ -943,8 +994,10 @@
         }
       }
     }
-    //3rd graph network Diagram (?)
 
+
+
+    //TO DO move buttons so that it looks better in deploy; style buttons
   }
   render();
 </script>
