@@ -41,6 +41,24 @@
     #x-select {
       margin-left: 800px;
     }
+
+    #extra {
+      float: right;
+      width: 40%;
+    }
+
+    #graph {
+      float: left;
+      width: 60%;
+    }
+
+    #divPie {
+      margin-bottom: 10px;
+    }
+
+    #pie {
+      margin-top: 10px;
+    }
   </style>
 </head>
 
@@ -56,15 +74,25 @@
   <div id="tooltip"></div>
   <br>
   <br>
-  <select id="y-select">
-    <option value="income">Early Income</option>
-    <option value="tuition">Average Tuition</option>
-    <option value="betterWorld">Percentage making the world better</option>
-    <option value="stem">Stem Percent</option>
-  </select>
-  <div>
-    <svg id="scatterplot" height="800" width="1000"></svg>
-    <svg id="pie" height="600" width="400"></svg>
+
+  <div id="scattergroup">
+    <div id="graph">
+      <select id="y-select">
+        <option value="income">Early Income</option>
+        <option value="tuition">Average Tuition</option>
+        <option value="betterWorld">Percentage making the world better</option>
+        <option value="stem">Stem Percent</option>
+      </select>
+      <svg id="scatterplot" height="800" width="1000"></svg>
+    </div>
+    <div id="extra">
+      <div>
+        <svg id="divPie" height="400" width="400"></svg>
+      </div>
+      <div>
+        <svg id="pie" height="400" width="400"></svg>
+      </div>
+    </div>
   </div>
   <div id="tooltipGraph"></div>
   <select id="x-select">
@@ -83,6 +111,7 @@
   const map = d3.select("#map")
   const graph = d3.select("#scatterplot")
   const pieSvg = d3.select("#pie")
+  const divPie = d3.select("#divPie")
 
 
   const graphMargins = { t: 30, r: 30, b: 30, l: 30 }
@@ -97,6 +126,9 @@
   const graphHeight = 800 - graphMargins.t - graphMargins.b
 
   const pieSvgArea = pieSvg.append("g")
+    .attr("transform", "translate(" + 200 + "," + 200 + ")")
+
+  const pieDivArea = divPie.append("g")
     .attr("transform", "translate(" + 200 + "," + 200 + ")")
 
   const mapArea = map.append("g")
@@ -382,6 +414,8 @@
       d["Men"] = format(1 - (d["('enrollment', 'Women')"] / denom))
       d["('enrollment', 'Men')"] = parseInt(denom) - parseInt(d["('enrollment', 'Women')"])
       d["total"] = denom
+      d["other"] = parseInt(d["('enrollment', 'Non-Resident Foreign')"]) + parseInt(d["('enrollment', 'Two Or More Races')"]) +
+        parseInt(d["('enrollment', 'Unknown')"])
     })
 
     let j = 1
@@ -406,11 +440,12 @@
           "<br/><br/><b>Racial Diversity</b>" +
           "<br/>American Indian/Alaska Native: " + d.Indian_Native +
           "<br/>Asian: " + d.Asian +
-          "<br/Black: " + d.Black +
+          "<br/>Black: " + d.Black +
           "<br/>Hispanic: " + d.Hispanic +
-          "%<br/>Native Hawaiian/Pacific Islander: " + d.Hawaiian_Islander +
+          "<br/>Native Hawaiian/Pacific Islander: " + d.Hawaiian_Islander +
           "<br/>Non Resident Foreign: " + d.Non_Resident_Foreign +
           "<br/>White: " + d.White +
+          "<br/>Two or more races: " + d.two_or_more_races +
           "<br/>Unknown: " + d.Unknown +
           "<br/><br/><b>Gender Diversity: </b>" +
           "<br/>Women: " + d.Women +
@@ -464,11 +499,39 @@
           })
           .style("text-anchor", "middle")
 
+
+        let divData = [parseInt(d["('enrollment', 'American Indian / Alaska Native')"]),
+        parseInt(d["('enrollment', 'Asian')"]), parseInt("('enrollment', 'Black')"),
+        parseInt(d["('enrollment', 'Hispanic')"]), parseInt(d["('enrollment', 'Native Hawaiian / Pacific Islander')"]),
+        parseInt(d["('enrollment', 'White')"]), parseInt(d["other"])]
+
+        let divScale = d3.scaleOrdinal(["green", "red", "purple", "orange", "brown", "blue", "black"])
+        let pieDiv = d3.pie().value(d => {
+          return d
+        })
+        let arcGenTwo = d3.arc().innerRadius(0).outerRadius(200)
+
+        pieDivArea.selectAll('arc').data(pieDiv(divData))
+          .enter().append("path")
+          .attr('d', arcGenTwo)
+          .attr("class", "arc")
+          .attr("fill", d => {
+            return divScale(d.data)
+          })
+        pieDivArea.selectAll('arc').data(pieDiv(divData))
+          .enter().append('text')
+          .text('hello')
+          .attr("transform", d => {
+            return "translate(" + arcGen.centroid(d) + ")"
+          })
+          .style("text-anchor", "middle")
+
       })
       .on('mouseleave', function () {
         d3.select(this).attr("stroke", "none").attr('r', 5 / j).style("opacity", "0.6")
         d3.select('#tooltipGraph').style('opacity', 0)
         pieSvgArea.selectAll("*").remove()
+        pieDivArea.selectAll("*").remove()
       });
 
 
@@ -795,7 +858,7 @@
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
-              return "yellow"
+              return "orange"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
@@ -852,7 +915,7 @@
             .transition().duration(700)
             .text("Hispanic Majority")
             .attr("id", "color3")
-            .style("fill", "yellow")
+            .style("fill", "orange")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -909,7 +972,7 @@
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
-              return "yellow"
+              return "orange"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
@@ -966,7 +1029,7 @@
             .transition().duration(700)
             .text("Hispanic Majority")
             .attr("id", "color3")
-            .style("fill", "yellow")
+            .style("fill", "orange")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
