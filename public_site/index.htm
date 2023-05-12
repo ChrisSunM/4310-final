@@ -61,68 +61,137 @@
       margin-top: 10px;
 
     }
+
+    #outer {
+      position: absolute;
+      left: 20%;
+    }
+
+    #title {
+      text-align: center;
+      margin-right: 25%;
+    }
+
+    #button1 {
+      position: absolute;
+      left: 28%;
+      margin-top: 30px;
+    }
+
+    #button2 {
+      position: absolute;
+      left: 38%;
+      margin-top: 30px;
+    }
+
+    #mapText {
+      position: absolute;
+      left: 18%;
+      margin-top: 5px;
+    }
+
+    .scatterText {
+      position: absolute;
+      left: 23%;
+
+    }
+
+    #button3 {
+      position: absolute;
+      left: 35%;
+      margin-top: 10px;
+    }
+
+    #button4 {
+      position: absolute;
+      left: 23%;
+      margin-top: 10px
+    }
+
+    #button5 {
+      position: absolute;
+      left: 45%;
+      margin-top: 10px
+    }
+
+    #radar {
+      position: absolute;
+      left: 10%;
+    }
+
+    #first-college {
+      position: absolute;
+      left: 22%;
+    }
+
+    #second-college {
+      position: absolute;
+      left: 22%;
+      margin-top: 30px;
+    }
   </style>
 </head>
 
 <body>
-  <h2>Final Project</h2>
-  <div>
-    <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+  <div id="outer">
+    <h2 id="title">Final Project</h2>
+    <text id="mapText">Drag a box to zoom! Double click to zoom back out! Hover over the dots for details.</text>
     <button id="button1">Early career pay</button>
     <button id="button2">Mid career pay</button>
-  </div>
-  </br>
-  <text>Drag a box to zoom! Double click to zoom back out! Hover over the dots for details.</text>
-
-  <div id="tooltip"></div>
-  <br>
-  <br>
-
-  <div id="scattergroup">
-    <div id="graph">
-      <select id="y-select">
-        <option value="income">Early Income</option>
-        <option value="tuition">Average Tuition</option>
-        <option value="betterWorld">Percentage making the world better</option>
-        <option value="stem">Stem Percent</option>
-      </select>
-      <svg id="scatterplot" height="800" width="1000"></svg>
-    </div>
-    <div id="extra">
-      <div>
-        <svg id="divPie" height="400" width="600"></svg>
-      </div>
-      <div>
-        <svg id="pie" height="400" width="400"></svg>
-      </div>
-    </div>
-  </div>
-  <div id="tooltipGraph"></div>
-  <select id="x-select">
-    <option value="tuition">Average Tuition</option>
-    <option value="income">Early Income</option>
-    <option value="betterWorld">Percentage making the world better</option>
-    <option value="stem">Stem Percent</option>
-  </select>
-
-  <button id="button3">Toggle School Type</button>
-  <button id="button4">Toggle Gender Majority</button>
-  <button id="button5">Toggle Race Majority</button>
-  </br>
-  </br>
-
-  <div id="spider">
     <div>
-      <div id="first-college">
-        Select First College:
+      <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+
+    </div>
+    </br>
+    <div id="tooltip"></div>
+    <br>
+    <br>
+    <text class="scatterText">Scroll on the scatterplot to zoom! Hover over dots for more info!</text>
+    <br>
+    <button id="button3">Toggle School Type</button>
+    <button id="button4">Toggle Gender Majority</button>
+    <button id="button5">Toggle Race Majority</button>
+    <div id="scattergroup">
+      <div id="graph">
+        <select id="y-select">
+          <option value="income">Early Income</option>
+          <option value="tuition">Average Tuition</option>
+          <option value="betterWorld">Percentage making the world better</option>
+          <option value="stem">Stem Percent</option>
+        </select>
+        <svg id="scatterplot" height="800" width="1000"></svg>
       </div>
-      <div id="second-college">
-        Select Second College:
+      <div id="extra">
+        <div>
+          <svg id="divPie" height="400" width="600"></svg>
+        </div>
+        <div>
+          <svg id="pie" height="400" width="400"></svg>
+        </div>
       </div>
     </div>
-    <div id="radar"></div>
-  </div>
+    <div id="tooltipGraph"></div>
+    <select id="x-select">
+      <option value="tuition">Average Tuition</option>
+      <option value="income">Early Income</option>
+      <option value="betterWorld">Percentage making the world better</option>
+      <option value="stem">Stem Percent</option>
+    </select>
+    </br>
+    </br>
 
+    <div id="spider">
+      <div>
+        <div id="first-college">
+          Select First College:
+        </div>
+        <div id="second-college">
+          Select Second College:
+        </div>
+      </div>
+      <div id="radar"></div>
+    </div>
+  </div>
 </body>
 <script>
   const map = d3.select("#map")
@@ -303,7 +372,7 @@
 
 
           d3.select('#tooltip').html(text)
-            .style('left', (event.pageX + 25) + 'px')
+            .style('left', (event.pageX - 305) + 'px')
             .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
         })
         .on('mouseleave', function () {
@@ -470,7 +539,7 @@
 
 
         d3.select('#tooltipGraph').html(text)
-          .style('left', (event.pageX + 25) + 'px')
+          .style('left', (event.pageX - 305) + 'px')
           .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
 
 
@@ -766,7 +835,7 @@
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 100)
             .transition().duration(700)
             .text("Public")
@@ -776,7 +845,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 115)
             .transition().duration(700)
             .text("Private")
@@ -797,7 +866,7 @@
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 100)
             .transition().duration(700)
             .text("Public")
@@ -807,7 +876,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 115)
             .transition().duration(700)
             .text("Private")
@@ -846,7 +915,7 @@
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 100)
             .transition().duration(700)
             .text("Men Majority")
@@ -856,7 +925,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 115)
             .transition().duration(700)
             .text("Women Majority")
@@ -876,7 +945,7 @@
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 100)
             .transition().duration(700)
             .text("Men Majority")
@@ -886,7 +955,7 @@
             .style('pointer-events', "none")
             .style("font-size", "16px")
           graphArea.append("text")
-            .attr("x", 810)
+            .attr("x", 110)
             .attr("y", 115)
             .transition().duration(700)
             .text("Women Majority")
@@ -958,7 +1027,7 @@
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 100)
             .transition().duration(700)
             .text("Asian Majority")
@@ -968,7 +1037,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 115)
             .transition().duration(700)
             .text("White Majority")
@@ -978,7 +1047,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 130)
             .transition().duration(700)
             .text("American Indian/Alaska Native Majority")
@@ -988,7 +1057,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 145)
             .transition().duration(700)
             .text("Black Majority")
@@ -998,7 +1067,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 160)
             .transition().duration(700)
             .text("Hispanic Majority")
@@ -1008,7 +1077,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 175)
             .transition().duration(700)
             .text("Native Hawaiian/Pacific Islander Majority")
@@ -1018,7 +1087,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 190)
             .transition().duration(700)
             .text("Other Majority")
@@ -1072,7 +1141,7 @@
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 100)
             .transition().duration(700)
             .text("Asian Majority")
@@ -1082,7 +1151,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 115)
             .transition().duration(700)
             .text("White Majority")
@@ -1092,7 +1161,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 130)
             .transition().duration(700)
             .text("American Indian/Alaska Native Majority")
@@ -1102,7 +1171,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 145)
             .transition().duration(700)
             .text("Black Majority")
@@ -1112,7 +1181,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 160)
             .transition().duration(700)
             .text("Hispanic Majority")
@@ -1122,7 +1191,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 175)
             .transition().duration(700)
             .text("Native Hawaiian/Pacific Islander Majority")
@@ -1132,7 +1201,7 @@
             .style('pointer-events', "none")
             .style('font-size', "16px")
           graphArea.append("text")
-            .attr("x", 650)
+            .attr("x", 110)
             .attr("y", 190)
             .transition().duration(700)
             .text("Other Majority")
@@ -1326,7 +1395,7 @@
           d3.select(this).attr("stroke", "black").attr("stroke-width", '3px')
 
           d3.select('#tooltip').html("<b>College: </b> " + d.name)
-            .style('left', (event.pageX + 25) + 'px')
+            .style('left', (event.pageX - 305) + 'px')
             .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
         })
         .on('mouseleave', function () {
@@ -1352,7 +1421,7 @@
           d3.select(this).attr("stroke", "black").attr("stroke-width", '3px')
 
           d3.select('#tooltip').html("<b>College: </b> " + d.name)
-            .style('left', (event.pageX + 25) + 'px')
+            .style('left', (event.pageX - 305) + 'px')
             .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
         })
         .on('mouseleave', function () {
