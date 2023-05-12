@@ -3,6 +3,7 @@
 <head>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://d3js.org/topojson.v3.min.js"></script>
+  <script src="https://unpkg.com/scrollama"></script>
   <style>
     #map {
       fill: white;
@@ -54,63 +55,65 @@
 
     #divPie {
       margin-bottom: 10px;
-
     }
 
     #pie {
       margin-top: 10px;
-
     }
 
     #outer {
       position: absolute;
       left: 20%;
+      visibility: hidden;
     }
 
     #title {
       text-align: center;
-      margin-right: 25%;
+
     }
 
     #button1 {
-      position: absolute;
-      left: 28%;
-      margin-top: 30px;
-    }
-
-    #button2 {
       position: absolute;
       left: 38%;
       margin-top: 30px;
     }
 
+    #button2 {
+      position: absolute;
+      left: 52%;
+      margin-top: 30px;
+    }
+
     #mapText {
       position: absolute;
-      left: 18%;
+      left: 17%;
       margin-top: 5px;
+      font-weight: bold;
+      font-size: 15pt
     }
 
     .scatterText {
       position: absolute;
-      left: 23%;
-
+      left: 25%;
+      font-weight: bold;
+      font-size: 15pt
     }
 
     #button3 {
       position: absolute;
-      left: 35%;
+      left: 46%;
       margin-top: 10px;
     }
 
     #button4 {
       position: absolute;
-      left: 23%;
+      left: 29%;
       margin-top: 10px
     }
 
     #button5 {
       position: absolute;
-      left: 45%;
+      left: 61%;
       margin-top: 10px
     }
 
@@ -127,69 +130,103 @@
     #second-college {
       position: absolute;
       left: 22%;
-      margin-top: 30px;
+      margin-top: 40px;
+    }
+
+    .step.active {
+      visibility: visible;
+    }
+
+    #wholeScatter {
+      position: absolute;
+      right: 25%;
+    }
+
+    #spider {
+      position: absolute;
+      margin-top: 100%;
+      margin-left: 10%;
+      visibility: visible
+    }
+
+    #extra {
+      position: absolute;
+      margin-left: 100%;
+      top: -0.5%
     }
   </style>
 </head>
 
 <body>
   <div id="outer">
-    <h2 id="title">Final Project</h2>
-    <text id="mapText">Drag a box to zoom! Double click to zoom back out! Hover over the dots for details.</text>
-    <button id="button1">Early career pay</button>
-    <button id="button2">Mid career pay</button>
-    <div>
-      <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
-
-    </div>
-    </br>
-    <div id="tooltip"></div>
-    <br>
-    <br>
-    <text class="scatterText">Scroll on the scatterplot to zoom! Hover over dots for more info!</text>
-    <br>
-    <button id="button3">Toggle School Type</button>
-    <button id="button4">Toggle Gender Majority</button>
-    <button id="button5">Toggle Race Majority</button>
-    <div id="scattergroup">
-      <div id="graph">
-        <select id="y-select">
-          <option value="income">Early Income</option>
-          <option value="tuition">Average Tuition</option>
-          <option value="betterWorld">Percentage making the world better</option>
-          <option value="stem">Stem Percent</option>
-        </select>
-        <svg id="scatterplot" height="800" width="1000"></svg>
-      </div>
-      <div id="extra">
+    <div id="secondOuter">
+      <section class="step" data-step="1">
+        <h2 id="title">An Analysis on the Effects of Demographics on Early Career
+          Income Right out of College
+        </h2>
+        <text id="mapText">Drag a box to zoom! Double click to zoom back out! Hover over the dots for details.</text>
+        <button id="button1">Early career pay</button>
+        <button id="button2">Mid career pay</button>
         <div>
-          <svg id="divPie" height="400" width="600"></svg>
-        </div>
-        <div>
-          <svg id="pie" height="400" width="400"></svg>
-        </div>
-      </div>
-    </div>
-    <div id="tooltipGraph"></div>
-    <select id="x-select">
-      <option value="tuition">Average Tuition</option>
-      <option value="income">Early Income</option>
-      <option value="betterWorld">Percentage making the world better</option>
-      <option value="stem">Stem Percent</option>
-    </select>
-    </br>
-    </br>
+          <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
 
-    <div id="spider">
-      <div>
-        <div id="first-college">
-          Select First College:
         </div>
-        <div id="second-college">
-          Select Second College:
+        </br>
+        <div id="tooltip"></div>
+      </section>
+      <br>
+      <br>
+      <div id="wholeScatter">
+        <section class="step" data-step="2">
+          <text class="scatterText">Scroll on the scatterplot to zoom! Hover over dots for more info!</text>
+          <br>
+          <button id="button3">Toggle School Type</button>
+          <button id="button4">Toggle Gender Majority</button>
+          <button id="button5">Toggle Race Majority</button>
+          <div id="scattergroup">
+            <div id="graph">
+              <select id="y-select">
+                <option value="income">Early Income</option>
+                <option value="tuition">Average Tuition</option>
+                <option value="betterWorld">Percentage making the world better</option>
+                <option value="stem">Stem Percent</option>
+              </select>
+              <svg id="scatterplot" height="800" width="1000"></svg>
+            </div>
+            <div id="extra">
+              <div>
+                <svg id="divPie" height="400" width="600"></svg>
+              </div>
+              <div>
+                <svg id="pie" height="400" width="400"></svg>
+              </div>
+            </div>
+
+            <div id="tooltipGraph"></div>
+            <select id="x-select">
+              <option value="tuition">Average Tuition</option>
+              <option value="income">Early Income</option>
+              <option value="betterWorld">Percentage making the world better</option>
+              <option value="stem">Stem Percent</option>
+            </select>
+          </div>
+        </section>
+      </div>
+
+      <div id="spider">
+        <div>
+          <div id="first-college">
+            Select First College:
+          </div>
+          <div id="second-college">
+            Select Second College:
+          </div>
+        </div>
+        <div id="radar">
+          <svg id="radarChart"></svg>
         </div>
       </div>
-      <div id="radar"></div>
+
     </div>
   </div>
 </body>
@@ -239,6 +276,19 @@
     .attr("width", graphWidth).attr("height", graphHeight)
     .attr("fill", "none")
     .style("pointer-events", "all");
+
+  // Set the dimensions and margins for the SVG
+  const margin = { top: 40, right: 50, bottom: 50, left: 50 };
+  const width = 800 - margin.left - margin.right;
+  const height = 800 - margin.top - margin.bottom;
+
+  // Set up the SVG element
+  const svg = d3.select("#radar")
+    .append("svg").attr('id', 'radarChart')
+    .attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", `translate(${margin.left + width / 2}, ${margin.top + height / 2})`);
+
 
   let render = async function () {
     let usMap = await d3.json("datasets/us-map.json")
@@ -539,8 +589,8 @@
 
 
         d3.select('#tooltipGraph').html(text)
-          .style('left', (event.pageX - 305) + 'px')
-          .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+          .style('left', (event.pageX - 30) + 'px')
+          .style('top', (event.pageY - 950) + 'px').style('opacity', 1);
 
 
         //Reference: https://d3-graph-gallery.com/pie.html
@@ -1283,17 +1333,7 @@
       firstCollegeChartData.push({ name: firstCollege, values: values1 });
       secondCollegeChartData.push({ name: secondCollege, values: values2 });
 
-      // Set the dimensions and margins for the SVG
-      const margin = { top: 40, right: 50, bottom: 50, left: 50 };
-      const width = 800 - margin.left - margin.right;
-      const height = 800 - margin.top - margin.bottom;
 
-      // Set up the SVG element
-      const svg = d3.select("#radar")
-        .append("svg").attr('id', 'radarChart')
-        .attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left + width / 2}, ${margin.top + height / 2})`);
 
       function radarChartPath(data, angleScale, radialScale, columns) {
         const pathData = data.values.map((value, index) => {
@@ -1435,7 +1475,32 @@
 
     spiderChart(first, second)
 
-    //TO DO move buttons so that it looks better in deploy; style buttons
+
+    //https://github.com/russellsamora/scrollama
+
+    var scrolly = document.querySelector("#outer")
+    var article = scrolly.querySelector("#secondOuter")
+    var step = article.querySelectorAll(".step")
+
+    var scroller = scrollama();
+
+    function handleStepEnter(response) {
+      console.log(response);
+      response.element.classList.add("active")
+    }
+    function handleStepExit(response) {
+      console.log(response)
+      response.element.classList.remove("active")
+    }
+    function init() {
+      scroller.setup({
+        step: "#outer #secondOuter .step",
+      })
+        .onStepEnter(handleStepEnter)
+        .onStepExit(handleStepExit)
+    }
+    init();
+
   }
 
 
