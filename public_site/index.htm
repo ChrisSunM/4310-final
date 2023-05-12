@@ -74,19 +74,19 @@
 
     #button1 {
       position: absolute;
-      left: 38%;
-      margin-top: 30px;
+      left: 28%;
+      margin-top: 60px;
     }
 
     #button2 {
       position: absolute;
-      left: 52%;
-      margin-top: 30px;
+      left: 42%;
+      margin-top: 60px;
     }
 
     #mapText {
       position: absolute;
-      left: 17%;
+      right: 40%;
       margin-top: 5px;
       font-weight: bold;
       font-size: 15pt
@@ -139,13 +139,13 @@
 
     #wholeScatter {
       position: absolute;
-      right: 25%;
+      right: 40%;
     }
 
     #spider {
       position: absolute;
-      margin-top: 100%;
-      margin-left: 10%;
+      margin-top: 90%;
+      margin-left: 1%;
       visibility: visible
     }
 
@@ -154,30 +154,96 @@
       margin-left: 100%;
       top: -0.5%
     }
+
+    .info {
+      text-align: center;
+      left: 20px;
+      position: static
+    }
+
+    #spiderInfo {
+      text-align: center;
+      margin-right: 500px;
+      margin-left: 100px;
+
+    }
+
+    #map {
+      margin-left: 20px;
+    }
+
+    #mapText {
+      margin-left: 300px;
+    }
+
+    #title {
+      margin-right: 300px;
+    }
+
+    #mapInfo {
+      margin-right: 300px;
+    }
   </style>
 </head>
 
 <body>
   <div id="outer">
     <div id="secondOuter">
-      <section class="step" data-step="1">
-        <h2 id="title">An Analysis on the Effects of Demographics on Early Career
-          Income Right out of College
-        </h2>
-        <text id="mapText">Drag a box to zoom! Double click to zoom back out! Hover over the dots for details.</text>
-        <button id="button1">Early career pay</button>
-        <button id="button2">Mid career pay</button>
-        <div>
-          <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+      <div id="mapSection">
+        <section class="step" data-step="1">
+          <h2 id="title">An Analysis on the Effects of Demographics on Early Career
+            Income Right out of College
+          </h2>
+          <div id="mapInfo">
+            <p class="info">
+              Getting a job out of college is one of the many daunting things
+              that recent graduates have to deal with on the start of their career journey.
+              But how much of their early career can be determined or predicted by
+              their demographics and college statistics?
+            </p>
+            <p class="info">
+              We found multiple datasets that discuss different statistics of colleges
+              all over the United States, containing information about tuition,
+              average major income, and predicted career pays. We then combined this
+              with another dataset that contained more actual demographics of the students
+              of these colleges, containing, for example, race and gender demographics, as well as
+              the percent of these students in STEM.
+            </p>
+            <p class="info">
+              The first visualization we have is a map displaying around 600 colleges
+              around the United States. This map contains information of what state
+              each college is in, it's predictive pays, tuition, STEM percent, and
+              public/private type of school. This is a main overview of all the schools.
+              In order to get a better idea of how much students make after recently
+              graduating each school, there are two buttons that color code these
+              data points to show their early or mid career incomes.
+            </p>
+          </div>
+          <text id="mapText">Drag a box to zoom! Double click to zoom back out! Hover over the dots for details.</text>
+          <button id="button1">Early career pay</button>
+          <button id="button2">Mid career pay</button>
+          <div>
+            <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
 
-        </div>
-        </br>
-        <div id="tooltip"></div>
-      </section>
+          </div>
+          </br>
+          <div id="tooltip"></div>
+        </section>
+      </div>
       <br>
       <br>
       <div id="wholeScatter">
         <section class="step" data-step="2">
+          <p class="info">
+            The next visual displays more comparisons using the demographics we
+            found. Each axis can be changed to a different variable, and from doing so
+            we have found that generally it seems that colleges with a male majority
+            student population usually end up making more in their early income than
+            colleges with a female majority population. We've also found that a decent
+            majority of students, both male and female, don't believe they're making
+            the world a much better place when they have a high early income than compared
+            with students making lower incomes.
+          </p>
           <text class="scatterText">Scroll on the scatterplot to zoom! Hover over dots for more info!</text>
           <br>
           <button id="button3">Toggle School Type</button>
@@ -212,21 +278,27 @@
           </div>
         </section>
       </div>
+      <section class="step" data-step="3">
 
-      <div id="spider">
-        <div>
-          <div id="first-college">
-            Select First College:
+        <div id="spider">
+          <p class="info" id="spiderInfo">
+            The next visual allows for a more specific comparison of two colleges.
+            Here users can analyze two different schools to see which may better fit them
+            or which has a higher tuition or mid career pay.
+          </p>
+          <div>
+            <div id="first-college">
+              Select First College:
+            </div>
+            <div id="second-college">
+              Select Second College:
+            </div>
           </div>
-          <div id="second-college">
-            Select Second College:
+          <div id="radar">
+            <svg id="radarChart"></svg>
           </div>
         </div>
-        <div id="radar">
-          <svg id="radarChart"></svg>
-        </div>
-      </div>
-
+      </section>
     </div>
   </div>
 </body>
@@ -1476,7 +1548,7 @@
     spiderChart(first, second)
 
 
-    //https://github.com/russellsamora/scrollama
+    //Reference: https://github.com/russellsamora/scrollama
 
     var scrolly = document.querySelector("#outer")
     var article = scrolly.querySelector("#secondOuter")
