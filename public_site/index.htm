@@ -686,13 +686,13 @@
 
 
         d3.select('#tooltipGraph').html(text)
-          .style('left', (event.pageX - 30) + 'px')
-          .style('top', (event.pageY - 950) + 'px').style('opacity', 1);
+          .style('left', (event.pageX - 80) + 'px')
+          .style('top', (event.pageY - 1200) + 'px').style('opacity', 1);
 
 
         //Reference: https://d3-graph-gallery.com/pie.html
         let pieData = [parseInt(d["('enrollment', 'Women')"]), (d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"])]
-        let pieScale = d3.scaleOrdinal(["#4665fc", "#f62d2d"])
+        let pieScale = d3.scaleOrdinal(["#5499c7", " #f1948a "])
         let pie = d3.pie().value(d => {
           return d
         })
@@ -733,11 +733,11 @@
 
 
         let divData = [parseInt(d["('enrollment', 'American Indian / Alaska Native')"]),
-        parseInt(d["('enrollment', 'Asian')"]), parseInt("('enrollment', 'Black')"),
+        parseInt(d["('enrollment', 'Asian')"]), parseInt(d["('enrollment', 'Black')"]),
         parseInt(d["('enrollment', 'Hispanic')"]), parseInt(d["('enrollment', 'Native Hawaiian / Pacific Islander')"]),
         parseInt(d["('enrollment', 'White')"]), parseInt(d["other"])]
 
-        let divScale = d3.scaleOrdinal(["green", "red", "purple", "orange", "brown", "blue", "black"])
+        let divScale = d3.scaleOrdinal(["#d98880", "#a569bd", "#5dade2", "#2ecc71", "#f7dc6f", "#b3b6b7", "#17202a"])
         let pieDiv = d3.pie().value(d => {
           return d
         })
@@ -748,6 +748,7 @@
           .attr('d', arcGenTwo)
           .attr("class", "arc")
           .attr("fill", d => {
+            console.log(d.data)
             return divScale(d.data)
           })
 
@@ -758,7 +759,7 @@
             return "Asian: " + parseInt(data["('enrollment', 'Asian')"])
           })
           .attr("id", "color4")
-          .style("fill", "red")
+          .style("fill", "#a569bd")
           .style("font-weight", "bold")
           .style('pointer-events', "none")
           .style('font-size', "13px")
@@ -769,7 +770,7 @@
             return "White: " + parseInt(data["('enrollment', 'White')"])
           })
           .attr("id", "color4")
-          .style("fill", "blue")
+          .style("fill", "#b3b6b7")
           .style("font-weight", "bold")
           .style('pointer-events', "none")
           .style('font-size', "13px")
@@ -780,7 +781,7 @@
             return "American Indian: " + parseInt(data["('enrollment', 'American Indian / Alaska Native')"])
           })
           .attr("id", "color4")
-          .style("fill", "green")
+          .style("fill", "#d98880")
           .style("font-weight", "bold")
           .style('pointer-events', "none")
           .style('font-size', "13px")
@@ -791,7 +792,7 @@
             return "Black: " + parseInt(data["('enrollment', 'Black')"])
           })
           .attr("id", "color4")
-          .style("fill", "purple")
+          .style("fill", "#5dade2")
           .style("font-weight", "bold")
           .style('pointer-events', "none")
           .style('font-size', "13px")
@@ -802,7 +803,7 @@
             return "Hispanic: " + parseInt(data["('enrollment', 'Hispanic')"])
           })
           .attr("id", "color4")
-          .style("fill", "orange")
+          .style("fill", "#2ecc71")
           .style("font-weight", "bold")
           .style('pointer-events', "none")
           .style('font-size', "13px")
@@ -813,7 +814,7 @@
             return "Native Hawaiian: " + parseInt(data["('enrollment', 'Native Hawaiian / Pacific Islander')"])
           })
           .attr("id", "color4")
-          .style("fill", "brown")
+          .style("fill", "#f7dc6f")
           .style("font-weight", "bold")
           .style('pointer-events', "none")
           .style('font-size', "13px")
@@ -824,7 +825,7 @@
             return "Other: " + parseInt(data["other"])
           })
           .attr("id", "color4")
-          .style("fill", "black")
+          .style("fill", "#17202a")
           .style("font-weight", "bold")
           .style('pointer-events', "none")
           .style('font-size', "13px")
@@ -958,6 +959,7 @@
       }
     }
     //additional button filters for scatterplot
+    //colors chosen from website: https://htmlcolorcodes.com/color-chart/
     const button3 = document.getElementById("button3")
     let filterClicked;
     button3.onclick = function () {
@@ -976,9 +978,9 @@
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filterClicked = true
             if (d["type"] == "Public") {
-              return "red"
+              return " #f1948a "
             } else {
-              return "blue"
+              return "#5499c7"
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
@@ -987,7 +989,7 @@
             .transition().duration(700)
             .text("Public")
             .attr("id", "color")
-            .style("fill", "red")
+            .style("fill", " #f1948a ")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -997,7 +999,7 @@
             .transition().duration(700)
             .text("Private")
             .attr("id", "color")
-            .style("fill", "blue")
+            .style("fill", "#5499c7")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1007,9 +1009,9 @@
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filterClicked = true
             if (d["type"] == "Public") {
-              return "red"
+              return " #f1948a "
             } else {
-              return "blue"
+              return "#5499c7"
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
@@ -1018,7 +1020,7 @@
             .transition().duration(700)
             .text("Public")
             .attr("id", "color")
-            .style("fill", "red")
+            .style("fill", " #f1948a ")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1028,7 +1030,7 @@
             .transition().duration(700)
             .text("Private")
             .attr("id", "color")
-            .style("fill", "blue")
+            .style("fill", "#5499c7")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1056,9 +1058,9 @@
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filter2Clicked = true
             if (parseInt(d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"]) > parseInt(d["('enrollment', 'Women')"])) {
-              return "red"
+              return " #f1948a "
             } else {
-              return "blue"
+              return "#5499c7"
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
@@ -1067,7 +1069,7 @@
             .transition().duration(700)
             .text("Men Majority")
             .attr("id", "color2")
-            .style("fill", "red")
+            .style("fill", " #f1948a ")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1077,7 +1079,7 @@
             .transition().duration(700)
             .text("Women Majority")
             .attr("id", "color2")
-            .style("fill", "blue")
+            .style("fill", "#5499c7")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1086,9 +1088,9 @@
           d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
             filter2Clicked = true
             if (parseInt(d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"]) > parseInt(d["('enrollment', 'Women')"])) {
-              return "red"
+              return " #f1948a "
             } else {
-              return "blue"
+              return "#5499c7"
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
@@ -1097,7 +1099,7 @@
             .transition().duration(700)
             .text("Men Majority")
             .attr("id", "color2")
-            .style("fill", "red")
+            .style("fill", " #f1948a ")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style("font-size", "16px")
@@ -1107,7 +1109,7 @@
             .transition().duration(700)
             .text("Women Majority")
             .attr("id", "color2")
-            .style("fill", "blue")
+            .style("fill", "#5499c7")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1116,6 +1118,7 @@
         }
       }
     }
+
     const button5 = document.getElementById("button5")
     let filter3Clicked;
     button5.onclick = function () {
@@ -1138,39 +1141,39 @@
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Asian')"]) {
-              return "red"
+              return "#a569bd"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'White')"]) {
-              return "blue"
+              return "#b3b6b7"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'American Indian / Alaska Native')"]) {
-              return "green"
+              return "#d98880"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Black')"]) {
-              return "purple"
+              return "#5dade2"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
-              return "orange"
+              return "#2ecc71"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Native Hawaiian / Pacific Islander')"]) {
-              return "brown"
+              return "#f7dc6f"
             } else {
-              return "black"
+              return "#17202a"
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
@@ -1179,7 +1182,7 @@
             .transition().duration(700)
             .text("Asian Majority")
             .attr("id", "color3")
-            .style("fill", "red")
+            .style("fill", "#a569bd")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1189,7 +1192,7 @@
             .transition().duration(700)
             .text("White Majority")
             .attr("id", "color3")
-            .style("fill", "blue")
+            .style("fill", "#b3b6b7")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1199,7 +1202,7 @@
             .transition().duration(700)
             .text("American Indian/Alaska Native Majority")
             .attr("id", "color3")
-            .style("fill", "green")
+            .style("fill", "#d98880")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1209,7 +1212,7 @@
             .transition().duration(700)
             .text("Black Majority")
             .attr("id", "color3")
-            .style("fill", "purple")
+            .style("fill", "#5dade2")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1219,7 +1222,7 @@
             .transition().duration(700)
             .text("Hispanic Majority")
             .attr("id", "color3")
-            .style("fill", "orange")
+            .style("fill", "#2ecc71")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1229,7 +1232,7 @@
             .transition().duration(700)
             .text("Native Hawaiian/Pacific Islander Majority")
             .attr("id", "color3")
-            .style("fill", "brown")
+            .style("fill", "#f7dc6f")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1239,7 +1242,7 @@
             .transition().duration(700)
             .text("Other Majority")
             .attr("id", "color3")
-            .style("fill", "black")
+            .style("fill", "#17202a")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1252,39 +1255,39 @@
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Asian')"]) {
-              return "red"
+              return "#a569bd"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'White')"]) {
-              return "blue"
+              return "#b3b6b7"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'American Indian / Alaska Native')"]) {
-              return "green"
+              return "#d98880"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Black')"]) {
-              return "purple"
+              return "#5dade2"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
-              return "orange"
+              return "#2ecc71"
             } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
               Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
                 Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
                   Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
                     d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Native Hawaiian / Pacific Islander')"]) {
-              return "brown"
+              return "#f7dc6f"
             } else {
-              return "black"
+              return "#17202a"
             }
           }).style("opacity", 0.6)
           graphArea.append("text")
@@ -1293,7 +1296,7 @@
             .transition().duration(700)
             .text("Asian Majority")
             .attr("id", "color3")
-            .style("fill", "red")
+            .style("fill", "#a569bd")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1303,7 +1306,7 @@
             .transition().duration(700)
             .text("White Majority")
             .attr("id", "color3")
-            .style("fill", "blue")
+            .style("fill", "#b3b6b7")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1313,7 +1316,7 @@
             .transition().duration(700)
             .text("American Indian/Alaska Native Majority")
             .attr("id", "color3")
-            .style("fill", "green")
+            .style("fill", "#d98880")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1323,7 +1326,7 @@
             .transition().duration(700)
             .text("Black Majority")
             .attr("id", "color3")
-            .style("fill", "purple")
+            .style("fill", "#5dade2")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1333,7 +1336,7 @@
             .transition().duration(700)
             .text("Hispanic Majority")
             .attr("id", "color3")
-            .style("fill", "orange")
+            .style("fill", "#2ecc71")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1343,7 +1346,7 @@
             .transition().duration(700)
             .text("Native Hawaiian/Pacific Islander Majority")
             .attr("id", "color3")
-            .style("fill", "brown")
+            .style("fill", "#f7dc6f")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
@@ -1353,7 +1356,7 @@
             .transition().duration(700)
             .text("Other Majority")
             .attr("id", "color3")
-            .style("fill", "black")
+            .style("fill", "#17202a")
             .style("font-weight", "bold")
             .style('pointer-events', "none")
             .style('font-size', "16px")
