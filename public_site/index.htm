@@ -5,6 +5,10 @@
   <script src="https://d3js.org/topojson.v3.min.js"></script>
   <script src="https://unpkg.com/scrollama"></script>
   <style>
+    body {
+      background-color: beige
+    }
+
     #map {
       fill: white;
     }
@@ -152,7 +156,8 @@
     #extra {
       position: absolute;
       margin-left: 100%;
-      top: -0.5%
+      top: -0.5%;
+      margin-top: 10%;
     }
 
     .info {
@@ -191,8 +196,8 @@
     <div id="secondOuter">
       <div id="mapSection">
         <section class="step" data-step="1">
-          <h2 id="title">An Analysis on the Effects of Demographics on Early Career
-            Income Right out of College
+          <h2 id="title">A College Exploration Tool: An Analysis of Demographics
+            on Early Career Income
           </h2>
           <div id="mapInfo">
             <p class="info">
@@ -207,13 +212,17 @@
               average major income, and predicted career pays. We then combined this
               with another dataset that contained more actual demographics of the students
               of these colleges, containing, for example, race and gender demographics, as well as
-              the percent of these students in STEM.
+              the percent of these students in STEM. We want users to be able
+              to explore the different colleges around the U.S. to see what would
+              fit them the best.
             </p>
             <p class="info">
               The first visualization we have is a map displaying around 600 colleges
               around the United States. This map contains information of what state
               each college is in, it's predictive pays, tuition, STEM percent, and
               public/private type of school. This is a main overview of all the schools.
+              From here, users can take a look at their home state or desired state
+              to travel to and take a look at the different basic statistics of that college.
               In order to get a better idea of how much students make after recently
               graduating each school, there are two buttons that color code these
               data points to show their early or mid career incomes.
@@ -237,12 +246,16 @@
           <p class="info">
             The next visual displays more comparisons using the demographics we
             found. Each axis can be changed to a different variable, and from doing so
-            we have found that generally it seems that colleges with a male majority
-            student population usually end up making more in their early income than
-            colleges with a female majority population. We've also found that a decent
-            majority of students, both male and female, don't believe they're making
-            the world a much better place when they have a high early income than compared
-            with students making lower incomes.
+            users will have free reign of comparing and contrasting the different
+            statistics of schools. Since the U.S. map is the intro high-level overview,
+            we intended the scatterplot to be a more in depth comparison as well as
+            a way to help users better visualize where a college lies in relation to
+            its peers. There are many different things to be found, for example, it seems
+            that generally colleges with a male majority student population end up
+            making more in their early income than colleges with a female majority population.
+            Of course, this isn't the result of just gender, as there are many different
+            factors to think about and analyze, which is why we give users a lot of
+            freedom to explore.
           </p>
           <text class="scatterText">Scroll on the scatterplot to zoom! Hover over dots for more info!</text>
           <br>
@@ -283,8 +296,10 @@
         <div id="spider">
           <p class="info" id="spiderInfo">
             The next visual allows for a more specific comparison of two colleges.
-            Here users can analyze two different schools to see which may better fit them
-            or which has a higher tuition or mid career pay.
+            Although the scatterplot helps display another good overview, we
+            wanted to also allow users to compare between two colleges that
+            they're interested in to get a better idea of which they would view
+            as "better".
           </p>
           <div>
             <div id="first-college">
