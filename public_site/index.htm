@@ -1,0 +1,1855 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Merriweather&display=swap');
+    @import url('https://fonts.googleapis.com/css?family=Kosugi&display=swap');
+    @import url('https://fonts.googleapis.com/css?family=Domine:400,700&display=swap');
+
+    body {
+      background-color: beige;
+      overflow-x: hidden;
+    }
+
+    #map {
+      fill: white;
+    }
+
+    #tooltip {
+      position: absolute;
+      padding: 2px;
+      pointer-events: none;
+      border-radius: 4px;
+      box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+      font: 15px sans-serif;
+      color: #030303;
+      line-height: 1;
+      padding: 12px;
+      background: rgb(250, 247, 247);
+      color: rgb(19, 18, 18);
+      border-radius: 2px;
+    }
+
+    #tooltipGraph {
+      position: absolute;
+      padding: 2px;
+      pointer-events: none;
+      border-radius: 4px;
+      box-shadow: 3px 3px 10px 0px rgba(0, 0, 0, 0.25);
+      font: 15px sans-serif;
+      color: #030303;
+      line-height: 1;
+      padding: 12px;
+      background: rgb(250, 247, 247);
+      color: rgb(19, 18, 18);
+      border-radius: 2px;
+    }
+
+    #x-select {
+      margin-left: 800px;
+    }
+
+    #extra {
+      float: right;
+      width: 40%;
+    }
+
+    #graph {
+      float: left;
+      width: 60%;
+    }
+
+    #divPie {
+      margin-bottom: 10px;
+    }
+
+    #pie {
+      margin-top: 10px;
+    }
+
+    #outer {
+      position: absolute;
+      left: 20%;
+      visibility: hidden;
+    }
+
+    #title {
+      text-align: center;
+
+    }
+
+    #button1 {
+      position: absolute;
+      left: 50%;
+      margin-top: 40px;
+    }
+
+    #button2 {
+      position: absolute;
+      left: 40%;
+      margin-top: 40px;
+    }
+
+    #mapText {
+      margin-top: 5px;
+      font-weight: bold;
+      font-size: 15pt
+    }
+
+    .scatterText {
+      position: absolute;
+      left: 25%;
+      font-weight: bold;
+      font-size: 15pt
+    }
+
+    #button3 {
+      position: absolute;
+      left: 46%;
+      margin-top: 10px;
+    }
+
+    #button4 {
+      position: absolute;
+      left: 29%;
+      margin-top: 10px
+    }
+
+    #button5 {
+      position: absolute;
+      left: 61%;
+      margin-top: 10px
+    }
+
+    #first-college {
+      position: absolute;
+      left: 22%;
+    }
+
+    #second-college {
+      position: absolute;
+      left: 22%;
+      margin-top: 40px;
+    }
+
+    .info {
+      text-align: center;
+      left: 20px;
+      position: static
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .dropdown {
+      margin: 50 0 0 50;
+      display: flex;
+      align-items: start;
+    }
+
+    p {
+      font-family: sans-serif
+    }
+
+    text {
+      font-family: sans-serif
+    }
+
+    #graphic {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0 auto;
+      /* centers the container horizontally */
+    }
+
+    #graphic>* {
+      margin: 0 auto;
+      /* this will center the direct children elements of the container */
+    }
+  </style>
+</head>
+
+
+<body>
+  <div id="graphic">
+    <div id="sections">
+      <section class="step">
+        <h2 id="title">A College Exploration Tool: An Analysis of Demographics
+          on Early Career Income
+        </h2>
+        <div id="mapInfo">
+          <p class="info">
+            Getting a job out of college is one of the many daunting things
+            that recent graduates have to deal with on the start of their career journey.
+            But how much of their early career can be determined or predicted by
+            their demographics and college statistics?
+          </p>
+          <p class="info">
+            We found multiple datasets that discuss different statistics of colleges
+            all over the United States, containing information about tuition,
+            average major income, and predicted career pays. We then combined this
+            with another dataset that contained more actual demographics of the students
+            of these colleges, containing, for example, race and gender demographics, as well as
+            the percent of these students in STEM. We want users to be able
+            to explore the different colleges around the U.S. to see what would
+            fit them the best.
+          </p>
+          <p class="info">
+            The first visualization we have is a map displaying around 600 colleges
+            around the United States. This map contains information of what state
+            each college is in, it's predictive pays, tuition, STEM percent, and
+            public/private type of school. This is a main overview of all the schools.
+            From here, users can take a look at their home state or desired state
+            to travel to and take a look at the different basic statistics of that college.
+            In order to get a better idea of how much students make after recently
+            graduating each school, there are two buttons that color code these
+            data points to show their early or mid career incomes.
+          </p>
+        </div>
+        <text id="mapText">Drag a box to zoom! Double click to zoom back out! Hover over the dots for
+          details.</text>
+        <button id="button1">Early career pay</button>
+        <button id="button2">Mid career pay</button>
+        <div>
+          <svg id="map" height="800" width="1000" style="border:1px solid black;"> </svg>
+
+        </div>
+        </br>
+
+
+      </section>
+      <section class="step">
+        <p class="info">
+          The next visual displays more comparisons using the demographics we
+          found. Each axis can be changed to a different variable, and from doing so
+          users will have free reign of comparing and contrasting the different
+          statistics of schools. Since the U.S. map is the intro high-level overview,
+          we intended the scatterplot to be a more in depth comparison as well as
+          a way to help users better visualize where a college lies in relation to
+          its peers. There are many different things to be found, for example, it seems
+          that generally colleges with a male majority student population end up
+          making more in their early income than colleges with a female majority population.
+          Of course, this isn't the result of just gender, as there are many different
+          factors to think about and analyze, which is why we give users a lot of
+          freedom to explore.
+        </p>
+        <text class="scatterText">Scroll on the scatterplot to zoom! Hover over dots for more info!</text>
+        <br>
+        <button id="button3">Toggle School Type</button>
+        <button id="button4">Toggle Gender Majority</button>
+        <button id="button5">Toggle Race Majority</button>
+        <div class="dropdown">
+          <select id="y-select">
+            <option value="income">Early Income</option>
+            <option value="tuition">Average Tuition</option>
+            <option value="betterWorld">Percentage making the world better</option>
+            <option value="stem">Stem Percent</option>
+          </select>
+        </div>
+
+        <div id="scattergroup">
+          <div id="graph">
+
+            <svg id="scatterplot" height="800" width="1000"></svg>
+          </div>
+          <div id="extra">
+            <div>
+              <svg id="divPie" height="400" width="600"></svg>
+            </div>
+            <div>
+              <svg id="pie" height="400" width="400"></svg>
+            </div>
+          </div>
+
+          <div id="tooltipGraph"></div>
+          <select id="x-select">
+            <option value="tuition">Average Tuition</option>
+            <option value="income">Early Income</option>
+            <option value="betterWorld">Percentage making the world better</option>
+            <option value="stem">Stem Percent</option>
+          </select>
+        </div>
+      </section>
+      <section class='step'>
+        <p class="info">
+          Here, we have clustered the majors based on the broader category, of which there are 16 in total.
+          The size
+          of the bubbles represent the median salary of graduates from the major.
+
+          When sorted like this, it's quite clear that engineering majors of all kinds have generally
+          above-average median salaries. <br><br>
+          On the other end, it appears that majors in the field of psychology on average have the lowest
+          graduate salaries. <br>
+        </p>
+        <div id="vis">
+        </div>
+      </section>
+      <section class="step">
+        <p class="info" id="spiderInfo">
+          The next visual allows for a more specific comparison of two colleges.
+          Although the scatterplot helps display another good overview, we
+          wanted to also allow users to compare between two colleges that
+          they're interested in to get a better idea of which they would view
+          as "better".
+        </p>
+        <div>
+          <div id="first-college">
+            Select First College:
+          </div>
+          <div id="second-college">
+            Select Second College:
+          </div>
+        </div>
+        <div id="radar">
+          <svg id="radarChart"></svg>
+        </div>
+      </section>
+
+    </div>
+  </div>
+  <div id='tooltip'></div>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/topojson.v3.min.js"></script>
+  <script>
+
+    //Reference: https://towardsdatascience.com/how-i-created-an-interactive-scrolling-visualisation-with-d3-js-and-how-you-can-too-e116372e2c73
+    function scroller() {
+      let container = d3.select('body')
+      let dispatch = d3.dispatch('active', 'progress');
+      let sections = d3.selectAll('.step')
+      let sectionPositions
+
+      let currentIndex = -1
+      let containerStart = 0;
+
+      function scroll() {
+        d3.select(window)
+          .on('scroll.scroller', position)
+          .on('resize.scroller', resize)
+
+        resize();
+
+        let timer = d3.timer(function () {
+          position();
+          timer.stop();
+        });
+      }
+
+      function resize() {
+        sectionPositions = [];
+        let startPos;
+
+        sections.each(function (d, i) {
+          let top = this.getBoundingClientRect().top;
+
+          if (i === 0) {
+            startPos = top;
+          }
+          sectionPositions.push(top - startPos)
+        });
+      }
+
+      function position() {
+        let pos = window.pageYOffset - 300 - containerStart;
+        let sectionIndex = d3.bisect(sectionPositions, pos);
+        sectionIndex = Math.min(sections.size() - 1, sectionIndex);
+
+        if (currentIndex !== sectionIndex) {
+          dispatch.call('active', this, sectionIndex);
+          currentIndex = sectionIndex;
+        }
+
+        let prevIndex = Math.max(sectionIndex - 1, 0);
+        let prevTop = sectionPositions[prevIndex]
+        let progress = (pos - prevTop) / (sectionPositions[sectionIndex] - prevTop);
+        dispatch.call('progress', this, currentIndex, progress)
+      }
+
+      scroll.container = function (value) {
+        if (arguments.legth === 0) {
+          return container
+        }
+        container = value
+        return scroll
+      }
+
+      scroll.on = function (action, callback) {
+        dispatch.on(action, callback)
+      };
+
+      return scroll;
+    }
+    const map = d3.select("#map")
+    const graph = d3.select("#scatterplot")
+    const pieSvg = d3.select("#pie")
+    const divPie = d3.select("#divPie")
+
+
+    const graphMargins = { t: 30, r: 30, b: 30, l: 30 }
+    const mapMargins = { t: 0, r: 0, b: 0, l: 0 }
+
+    const plot = graph.append("g")
+
+    const mapWidth = 1000
+    const mapHeight = 800
+
+    const graphWidth = 1000 - graphMargins.l - graphMargins.r
+    const graphHeight = 800 - graphMargins.t - graphMargins.b
+
+    const pieSvgArea = pieSvg.append("g")
+      .attr("transform", "translate(" + 200 + "," + 200 + ")")
+
+    const pieDivArea = divPie.append("g")
+      .attr("transform", "translate(" + 200 + "," + 200 + ")")
+
+    const mapArea = map.append("g")
+      .attr("transform", `translate(${mapMargins.l},${mapMargins.t})`)
+
+    const yAxisArea = plot.append("g")
+      .attr("transform", "translate(" + (graphMargins.l) + "," + graphMargins.t + ")");
+    const xAxisArea = plot.append("g")
+      .attr("transform", "translate(" + (graphMargins.l) + "," + (graphHeight + graphMargins.t) + ")");
+    const graphArea = plot.append("g")
+      .attr("transform", "translate(" + graphMargins.l + "," + graphMargins.t + ")")
+
+    plot.append("defs").append("clipPath")
+      .attr("id", "chartClip")
+      .append("rect").attr("x", 0)
+      .attr("y", 0)
+      .attr("width", graphWidth)
+      .attr("height", graphHeight);
+    graphArea.attr("clip-path", "url(#chartClip)")
+      .attr("transform", `translate(${graphMargins.l},${graphMargins.t})`)
+    graphArea.append("rect").attr("x", 0).attr("y", 0)
+      .attr("width", graphWidth).attr("height", graphHeight)
+      .attr("fill", "none")
+      .style("pointer-events", "all");
+
+    // Set the dimensions and margins for the SVG
+    const margin = { top: 40, right: 50, bottom: 20, left: 50 };
+    const width = 800 - margin.left - margin.right;
+    const height = 700 - margin.top - margin.bottom;
+
+    // Set up the SVG element
+    var svg
+
+    let render = async function () {
+      let usMap = await d3.json("datasets/us-map.json")
+
+      // Creating map
+      let states = topojson.feature(usMap, usMap.objects.states);
+      let statesMesh = topojson.mesh(usMap, usMap.objects.states);
+      let projection = d3.geoAlbersUsa().fitSize([1000, 800], states);
+      let path = d3.geoPath().projection(projection);
+      let defs = map.append("defs");
+
+      let linearGradient = defs.append("linearGradient")
+        .attr("id", "linear-gradient");
+
+      let legend = map.append("g")
+        .attr("class", "legend")
+        .attr("transform", "translate(" + (200) + "," + (750) + ")");
+
+      legend.append("rect")
+        .attr("width", 650)
+        .attr("height", 20)
+        .style("fill", "url(#linear-gradient)");
+
+      mapArea.selectAll("path.state").data(states.features)
+        .attr("class", "state")
+        .join("path")
+        .attr("d", path)
+        .attr("stroke", "black")
+
+      let finalData = await d3.csv("datasets/finalFiltered.csv")
+
+      let k = 1
+      // Define the zoom function
+      function zoomed(event) {
+        mapArea.attr("transform", event.transform);
+        circles.attr("r", 5 / event.transform.k)
+        k = event.transform.k
+      }
+      // Create a zoom behavior
+      let zoom = d3.zoom()
+        .scaleExtent([1, 10])
+        .on('zoom', zoomed);
+
+      // Create a brush behavior
+      let brush = d3.brush()
+        .extent([[0, 0], [mapWidth, mapHeight]])
+        .on('brush end', brushed);
+
+      // Add the brush to the map
+      mapArea.append('g')
+        .attr('class', 'brush')
+        .call(brush);
+
+      // Add the double click event listener to the map
+      mapArea.on('dblclick', resetZoomAndBrush);
+
+      // Define the resetZoomAndBrush function
+      function resetZoomAndBrush() {
+        // Transition the mapArea back to the original transform
+        mapArea.transition()
+          .duration(750)
+          .call(zoom.transform, d3.zoomIdentity);
+
+        // Remove the brush selection
+        map.select('.brush').call(brush.move, null);
+      }
+
+
+      finalData.forEach(d => {
+        d.Position = projection([d.LONGITUD, d.LATITUDE])
+      });
+
+
+      // Custom interpolator function for red-orange-green gradient
+      function redOrangeGreen(t) {
+        return d3.interpolateRgb(
+          d3.interpolateRgb("yellow", "orange")(t),
+          "green"
+        )(t);
+      }
+
+      // Create color scales
+      let earlyCareerPayScale = d3.scaleSequential()
+        .domain(d3.extent(finalData, d => +d.early_career_pay))
+        .interpolator(redOrangeGreen);
+
+      let midCareerPayScale = d3.scaleSequential()
+        .domain(d3.extent(finalData, d => +d.mid_career_pay))
+        .interpolator(redOrangeGreen);
+
+      finalData.forEach(d => {
+        circles = mapArea.selectAll("circle").data(finalData)
+          .join("circle")
+          .attr("cx", d => {
+            if (d.Position != null) {
+              return d.Position[0]
+            }
+          })
+          .attr("cy", d => {
+            if (d.Position != null) {
+              return d.Position[1]
+            }
+          })
+          .attr("r", 5)
+          .attr("fill", "gray")
+          .on('mouseover', function (event, d) {
+            d3.select(this).each(function () {
+              this._originalColor = d3.select(this).attr('fill');
+              console.log(this._originalColor = d3.select(this).attr('fill'))
+            });
+          })
+          .on("mousemove", function (event, d) {
+
+            d3.select(this).attr("stroke", "black").attr("stroke-width", 2 / k + "px")
+              .attr('r', 15 / k)
+              .attr('fill', "blue")
+            let avgTuition = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+            if (d.type != undefined) {
+              var text = "<b>Name:</b> " + d.name +
+                "<br/><b>State:</b> " + d.STABBR +
+                "<br/><b>Early Career Pay: </b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
+                "<br/><b>Mid Career Pay: </b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
+                "<br/><b>STEM percent: </b>" + d.stem_percent +
+                "%<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(avgTuition) +
+                "<br/><b>Type:</b> " + d.type;
+            } else {
+              var text = "<b>Name:</b> " + d.name +
+                "<br/><b>State:</b> " + d.STABBR +
+                "<br/><b>Early Career Pay:</b> " + "$" + formatNumberWithCommas(d.early_career_pay) +
+                "<br/><b>Mid Career Pay:</b> " + "$" + formatNumberWithCommas(d.mid_career_pay) +
+                "<br/><b>STEM percent:</b> " + d.stem_percent + "%" +
+                "<br/><b>Tuition: </b>" + "$" + formatNumberWithCommas(avgTuiton);
+            }
+
+            function formatNumberWithCommas(number) {
+              return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
+
+            d3.select('#tooltip').html(text)
+              .style('left', (event.pageX - 305) + 'px')
+              .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+          })
+          .on('mouseleave', function () {
+            // Retrieve the original color from the DOM node
+            let originalColor = 'grey';
+            d3.select(this).each(function () {
+              originalColor = this._originalColor;
+            });
+
+            d3.select(this).attr("stroke", "none").attr('r', 5 / k).attr("fill", originalColor);
+            d3.select('#tooltip').style('opacity', 0)
+          });
+      })
+
+      function brushed(event) {
+        // If there is no selection, do nothing
+        if (!event.selection) return;
+
+        // Get the current zoom transform
+        let currentZoom = d3.zoomTransform(mapArea.node());
+
+        // Get the selection coordinates and adjust them based on the current zoom level
+        let [[x0, y0], [x1, y1]] = event.selection;
+        let [[tx0, ty0], [tx1, ty1]] = [[x0, y0], [x1, y1]].map(d => currentZoom.invert(d));
+
+        // Calculate the new zoom parameters
+        let dx = tx1 - tx0;
+        let dy = ty1 - ty0;
+        let x = (tx0 + tx1) / 2;
+        let y = (ty0 + ty1) / 2;
+        let scale = Math.max(1, Math.min(10, 0.9 / Math.max(dx / mapWidth, dy / mapHeight)));
+        let translate = [mapWidth / 2 - scale * x, mapHeight / 2 - scale * y];
+
+        // Apply the new zoom parameters
+        mapArea.transition()
+          .duration(750)
+          .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+      }
+
+      // Get references to the two buttons
+      const button1 = document.getElementById("button1");
+      const button2 = document.getElementById("button2");
+
+      // Function to update the colors based on the button clicked
+      function buttonClicked(button) {
+        let colorScale;
+
+        if (button === "Button 1") {
+          colorScale = earlyCareerPayScale;
+        } else if (button === "Button 2") {
+          colorScale = midCareerPayScale;
+        }
+
+        // Update the circles' colors based on the selected color scale
+        mapArea.selectAll("circle")
+          .attr("fill", d => colorScale(d[button === "Button 1" ? 'early_career_pay' : 'mid_career_pay']));
+
+        // Update the legend's gradient
+        linearGradient.selectAll("stop").remove();
+        linearGradient.selectAll("stop")
+          .data(colorScale.ticks().map((t, i, n) => ({ offset: `${100 * i / n.length}%`, color: colorScale(t) })))
+          .enter().append("stop")
+          .attr("offset", d => d.offset)
+          .attr("stop-color", d => d.color);
+
+        // Update the legend's labels
+        legend.selectAll("text").remove();
+        legend.selectAll("text")
+          .data(colorScale.ticks())
+          .enter().append("text")
+          .attr("x", (d, i, n) => `${650 * i / n.length}`)
+          .attr("y", 20)
+          .style('fill', 'black')
+          .text(d => d);
+
+        // Add tick lines
+        legend.selectAll("line").remove();
+        legend.selectAll("line")
+          .data(colorScale.ticks())
+          .enter().append("line")
+          .attr("x1", (d, i, n) => `${650 * i / n.length}`)
+          .attr("x2", (d, i, n) => `${650 * i / n.length}`)
+          .attr("y1", 0)
+          .attr("y2", 6)
+          .style("stroke", "black");
+      }
+
+      // Add a click event listener to each button
+      button1.addEventListener("click", function () {
+        buttonClicked("Button 1");
+      });
+
+      button2.addEventListener("click", function () {
+        buttonClicked("Button 2");
+      });
+
+      //customizable graph (base graph, y=avg starting income x=tuition (instate + outstate average))
+
+      //x scale
+      let bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
+
+      //y scale
+      let leftScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
+
+      let leftAxis = d3.axisLeft(leftScale).ticks(6).tickFormat(d3.format(".0s"));
+      yAxisArea.append("g").attr("class", "y axis").call(leftAxis);
+      let bottomAxis = d3.axisBottom(bottomScale);
+      xAxisArea.append("g").attr("class", "x axis").call(bottomAxis);
+      /*
+          let yGridlines = d3.axisLeft(incomeScale).ticks(6).tickSize(-graphWidth - 30).tickFormat("");
+          yAxisArea.append("g").attr("class", "y gridlines").call(yGridlines);
+          let xGridlines = d3.axisBottom(tuitionScale).tickSize(-graphHeight - 30).tickFormat("");
+          xAxisArea.append("g").attr("class", "x gridlines").call(xGridlines);*/
+
+      let format = d3.format(".2%")
+      //giving diversity percentages in data (all total enrollment values are same)
+      finalData.forEach(d => {
+        denom = d["('total_enrollment', 'Asian')"]
+        d["Indian_Native"] = format(d["('enrollment', 'American Indian / Alaska Native')"] / denom)
+        d["Asian"] = format(d["('enrollment', 'Asian')"] / denom)
+        d["Black"] = format(d["('enrollment', 'Black')"] / denom)
+        d["Hispanic"] = format(d["('enrollment', 'Hispanic')"] / denom)
+        d["Hawaiian_Islander"] = format(d["('enrollment', 'Native Hawaiian / Pacific Islander')"] / denom)
+        d["Non_Resident_Foreign"] = format(d["('enrollment', 'Non-Resident Foreign')"] / denom)
+        d["Total_minority"] = format(d["'enrollment', 'Total Minority')"] / denom)
+        d["two_or_more_races"] = format(d["('enrollment', 'Two Or More Races')"] / denom)
+        d["Unknown"] = format(d["('enrollment', 'Unknown')"] / denom)
+        d["White"] = format(d["('enrollment', 'White')"] / denom)
+        d["Women"] = format(d["('enrollment', 'Women')"] / denom)
+        d["Men"] = format(1 - (d["('enrollment', 'Women')"] / denom))
+        d["('enrollment', 'Men')"] = parseInt(denom) - parseInt(d["('enrollment', 'Women')"])
+        d["total"] = denom
+        d["other"] = parseInt(d["('enrollment', 'Non-Resident Foreign')"]) + parseInt(d["('enrollment', 'Two Or More Races')"]) +
+          parseInt(d["('enrollment', 'Unknown')"])
+      })
+
+      let j = 1
+      let viewport = graphArea.append("g");
+      let graphCircles = viewport.selectAll("circle.graph").data(finalData)
+        .join("circle").attr("class", "graph")
+        .attr("cx", d => {
+          let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+          return bottomScale(avg)
+        })
+        .attr("cy", d => {
+          return leftScale(parseInt(d["early_career_pay"]))
+        })
+        .attr("r", 5)
+        .attr("fill", "black")
+        .style("opacity", 0.6)
+        .on("mousemove", function (event, d) {
+          let data = d
+          d3.select(this).attr("stroke", "black").attr("stroke-width", 4 / j + "px")
+            .attr('r', 15 / j).style("opacity", 1)
+          var text = "<b>Name:</b> " + d.name +
+            "<br/><br/><b>Racial Diversity</b>" +
+            "<br/>American Indian/Alaska Native: " + d.Indian_Native +
+            "<br/>Asian: " + d.Asian +
+            "<br/>Black: " + d.Black +
+            "<br/>Hispanic: " + d.Hispanic +
+            "<br/>Native Hawaiian/Pacific Islander: " + d.Hawaiian_Islander +
+            "<br/>Non Resident Foreign: " + d.Non_Resident_Foreign +
+            "<br/>White: " + d.White +
+            "<br/>Two or more races: " + d.two_or_more_races +
+            "<br/>Unknown: " + d.Unknown +
+            "<br/><br/><b>Gender Diversity: </b>" +
+            "<br/>Women: " + d.Women +
+            "<br/>Men: " + d.Men;
+
+
+
+          d3.select('#tooltipGraph').html(text)
+            .style('left', (event.pageX - 80) + 'px')
+            .style('top', (event.pageY + 20) + 'px').style('opacity', 1);
+
+
+          //Reference: https://d3-graph-gallery.com/pie.html
+          let pieData = [parseInt(d["('enrollment', 'Women')"]), (d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"])]
+          let pieScale = d3.scaleOrdinal(["#5499c7", " #f1948a "])
+          let pie = d3.pie().value(d => {
+            return d
+          })
+
+          let arcGen = d3.arc().innerRadius(0).outerRadius(200)
+
+          pieSvgArea.selectAll('arc').data(pie(pieData))
+            .enter().append("path")
+            .attr("d", arcGen)
+            .attr("class", "arc")
+            .attr("fill", d => {
+              return pieScale(d.data)
+            })
+
+
+          pieSvgArea.selectAll("arc").data(pie(pieData))
+            .enter().append("text")
+            .text(d => {
+
+              if (parseInt(data["('enrollment', 'Women')"]) < parseInt(data["('enrollment', 'Men')"])) {
+                if (d.index == 1) {
+                  return "Women: " + d.value
+                } else {
+                  return "Men: " + d.value
+                }
+              } else {
+                if (d.index == 1) {
+                  return "Men: " + d.value
+                } else {
+                  return "Women: " + d.value
+                }
+              }
+            })
+            .attr("transform", d => {
+              return "translate(" + arcGen.centroid(d) + ")"
+            })
+            .style("text-anchor", "middle")
+
+
+          let divData = [parseInt(d["('enrollment', 'American Indian / Alaska Native')"]),
+          parseInt(d["('enrollment', 'Asian')"]), parseInt(d["('enrollment', 'Black')"]),
+          parseInt(d["('enrollment', 'Hispanic')"]), parseInt(d["('enrollment', 'Native Hawaiian / Pacific Islander')"]),
+          parseInt(d["('enrollment', 'White')"]), parseInt(d["other"])]
+
+          let divScale = d3.scaleOrdinal(["#d98880", "#a569bd", "#5dade2", "#2ecc71", "#f7dc6f", "#b3b6b7", "#17202a"])
+          let pieDiv = d3.pie().value(d => {
+            return d
+          })
+          let arcGenTwo = d3.arc().innerRadius(0).outerRadius(200)
+
+          pieDivArea.selectAll('arc').data(pieDiv(divData))
+            .enter().append("path")
+            .attr('d', arcGenTwo)
+            .attr("class", "arc")
+            .attr("fill", d => {
+              console.log(d.data)
+              return divScale(d.data)
+            })
+
+          pieDivArea.append("text")
+            .attr("x", 210)
+            .attr("y", -150)
+            .text(d => {
+              return "Asian: " + parseInt(data["('enrollment', 'Asian')"])
+            })
+            .attr("id", "color4")
+            .style("fill", "#a569bd")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "13px")
+          pieDivArea.append("text")
+            .attr("x", 210)
+            .attr("y", -135)
+            .text(d => {
+              return "White: " + parseInt(data["('enrollment', 'White')"])
+            })
+            .attr("id", "color4")
+            .style("fill", "#b3b6b7")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "13px")
+          pieDivArea.append("text")
+            .attr("x", 210)
+            .attr("y", -120)
+            .text(d => {
+              return "American Indian: " + parseInt(data["('enrollment', 'American Indian / Alaska Native')"])
+            })
+            .attr("id", "color4")
+            .style("fill", "#d98880")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "13px")
+          pieDivArea.append("text")
+            .attr("x", 210)
+            .attr("y", -105)
+            .text(d => {
+              return "Black: " + parseInt(data["('enrollment', 'Black')"])
+            })
+            .attr("id", "color4")
+            .style("fill", "#5dade2")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "13px")
+          pieDivArea.append("text")
+            .attr("x", 210)
+            .attr("y", -90)
+            .text(d => {
+              return "Hispanic: " + parseInt(data["('enrollment', 'Hispanic')"])
+            })
+            .attr("id", "color4")
+            .style("fill", "#2ecc71")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "13px")
+          pieDivArea.append("text")
+            .attr("x", 210)
+            .attr("y", -75)
+            .text(d => {
+              return "Native Hawaiian: " + parseInt(data["('enrollment', 'Native Hawaiian / Pacific Islander')"])
+            })
+            .attr("id", "color4")
+            .style("fill", "#f7dc6f")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "13px")
+          pieDivArea.append("text")
+            .attr("x", 210)
+            .attr("y", -60)
+            .text(d => {
+              return "Other: " + parseInt(data["other"])
+            })
+            .attr("id", "color4")
+            .style("fill", "#17202a")
+            .style("font-weight", "bold")
+            .style('pointer-events', "none")
+            .style('font-size', "13px")
+
+
+        })
+        .on('mouseleave', function () {
+          d3.select(this).attr("stroke", "none").attr('r', 5 / j).style("opacity", "0.6")
+          d3.select('#tooltipGraph').style('opacity', 0)
+          pieSvgArea.selectAll("*").remove()
+          pieDivArea.selectAll("*").remove()
+        });
+
+
+
+
+
+
+      let zoomExtent = [[0, 0], [graphWidth, graphHeight]];
+      let translateExtent = [[-100, -100], [graphWidth + 100, graphHeight + 100]];
+      var plotZoom = d3.zoom()
+        .extent(zoomExtent)
+        .translateExtent(translateExtent)
+        .scaleExtent([1, 10])
+        .on("zoom", plotZoomed);
+
+      graphArea.call(plotZoom);
+
+
+      function plotZoomed({ transform }) {
+        viewport.attr("transform", transform);
+
+        let xScale = transform.rescaleX(bottomScale);
+        let yScale = transform.rescaleY(leftScale);
+        bottomAxis.scale(xScale);
+        leftAxis.scale(yScale);
+        /*
+        yGridlines.scale(txScale);
+        xGridlines.scale(tyScale);*/
+        d3.select("g.y.axis").call(leftAxis);
+        d3.select("g.x.axis").call(bottomAxis);
+
+        /*
+        d3.select("g.y.gridlines").call(yGridlines);
+        d3.select("g.x.gridlines").call(xGridlines);*/
+
+
+        graphCircles.attr("r", 5 / transform.k);
+        j = transform.k
+      }
+      graphArea.call(plotZoom.transform, d3.zoomIdentity);
+
+
+      //changing x and y axis
+      document.getElementById("x-select").onchange = function () {
+        let changeX = document.getElementById("x-select").value
+
+        console.log(changeX)
+        if (changeX == "betterWorld") {
+          bottomScale = d3.scaleLinear().domain([30, 100]).range([15, graphWidth - 15])
+          let bottomAxis = d3.axisBottom(bottomScale)
+          d3.select("g.x.axis").call(bottomAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
+            if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
+              return bottomScale(parseInt(d["make_world_better_percent"]))
+            }
+          })
+        } else if (changeX == "income") {
+          bottomScale = d3.scaleLinear().domain([32000, 92000]).range([15, graphWidth - 15])
+          let bottomAxis = d3.axisBottom(bottomScale)
+          d3.select("g.x.axis").call(bottomAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
+            return bottomScale(parseInt(d["early_career_pay"]))
+          })
+        } else if (changeX == "tuition") {
+          bottomScale = d3.scaleLinear().domain([0, 75100]).range([15, graphWidth - 15])
+          let bottomAxis = d3.axisBottom(bottomScale)
+          d3.select("g.x.axis").call(bottomAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
+            let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+            return bottomScale(avg)
+          })
+        } else if (changeX == "stem") {
+          bottomScale = d3.scaleLinear().domain([0, 100]).range([15, graphWidth - 15])
+          let bottomAxis = d3.axisBottom(bottomScale)
+          d3.select("g.x.axis").call(bottomAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cx", d => {
+            return bottomScale(d["stem_percent"])
+          })
+        }
+
+
+
+
+      }
+      document.getElementById("y-select").onchange = function () {
+        let changeY = document.getElementById("y-select").value
+
+        console.log(changeY)
+        if (changeY == "betterWorld") {
+          leftScale = d3.scaleLinear().domain([30, 100]).range([graphHeight - 15, 15])
+          let leftAxis = d3.axisLeft(leftScale)
+          d3.select("g.y.axis").call(leftAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
+            if (isNaN(parseInt(d["make_world_better_percent"])) == false) {
+              return leftScale(parseInt(d["make_world_better_percent"]))
+            }
+          })
+        } else if (changeY == "income") {
+          leftScale = d3.scaleLinear().domain([32000, 92000]).range([graphHeight - 15, 15])
+          let leftAxis = d3.axisLeft(leftScale)
+          d3.select("g.y.axis").call(leftAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
+            return leftScale(parseInt(d["early_career_pay"]))
+          })
+        } else if (changeY == "tuition") {
+          leftScale = d3.scaleLinear().domain([0, 75100]).range([graphHeight - 15, 15])
+          let leftAxis = d3.axisLeft(leftScale)
+          d3.select("g.y.axis").call(leftAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
+            let avg = (parseInt(d["in_state_total"]) + parseInt(d["out_of_state_total"])) / 2
+            return leftScale(avg)
+          })
+        } else if (changeY == "stem") {
+          leftScale = d3.scaleLinear().domain([0, 100]).range([graphHeight - 15, 15])
+          let leftAxis = d3.axisLeft(leftScale)
+          d3.select("g.y.axis").call(leftAxis)
+          d3.selectAll("circle.graph").transition().duration(700).attr("cy", d => {
+            return leftScale(d["stem_percent"])
+          })
+        }
+      }
+      //additional button filters for scatterplot
+      //colors chosen from website: https://htmlcolorcodes.com/color-chart/
+      const button3 = document.getElementById("button3")
+      let filterClicked;
+      button3.onclick = function () {
+        if (filterClicked == true) {
+          filterClicked = false
+          d3.selectAll("#color").remove()
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            return "gray"
+          }).style("opacity", "none")
+        } else {
+          if (filter2Clicked == true || filter3Clicked == true) {
+            filter2Clicked = false
+            filter3Clicked = false
+            d3.selectAll("#color2").remove()
+            d3.selectAll("#color3").remove()
+            d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+              filterClicked = true
+              if (d["type"] == "Public") {
+                return " #f1948a "
+              } else {
+                return "#5499c7"
+              }
+            }).style("opacity", 0.6)
+
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 20)
+              .transition().duration(700)
+              .text("Public")
+              .attr("id", "color")
+              .style("fill", " #f1948a ")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 35)
+              .transition().duration(700)
+              .text("Private")
+              .attr("id", "color")
+              .style("fill", "#5499c7")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+
+            filterClicked = true;
+          } else {
+            d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+              filterClicked = true
+              if (d["type"] == "Public") {
+                return " #f1948a "
+              } else {
+                return "#5499c7"
+              }
+            }).style("opacity", 0.6)
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 20)
+              .transition().duration(700)
+              .text("Public")
+              .attr("id", "color")
+              .style("fill", " #f1948a ")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 35)
+              .transition().duration(700)
+              .text("Private")
+              .attr("id", "color")
+              .style("fill", "#5499c7")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+
+            filterClicked = true;
+          }
+
+        }
+      }
+      const button4 = document.getElementById("button4")
+      let filter2Clicked;
+      button4.onclick = function () {
+        if (filter2Clicked == true) {
+          filter2Clicked = false
+          d3.selectAll("#color2").remove()
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            return "gray"
+          }).style("opacity", "none")
+        } else {
+          if (filterClicked == true || filter3Clicked == true) {
+            filterClicked = false
+            filter3Clicked = false
+            d3.selectAll("#color").remove()
+            d3.selectAll("#color3").remove()
+            d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+              filter2Clicked = true
+              if (parseInt(d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"]) > parseInt(d["('enrollment', 'Women')"])) {
+                return " #f1948a "
+              } else {
+                return "#5499c7"
+              }
+            }).style("opacity", 0.6)
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 20)
+              .transition().duration(700)
+              .text("Men Majority")
+              .attr("id", "color2")
+              .style("fill", " #f1948a ")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 35)
+              .transition().duration(700)
+              .text("Women Majority")
+              .attr("id", "color2")
+              .style("fill", "#5499c7")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            filter2Clicked = true;
+          } else {
+            d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+              filter2Clicked = true
+              if (parseInt(d["('total_enrollment', 'Women')"] - d["('enrollment', 'Women')"]) > parseInt(d["('enrollment', 'Women')"])) {
+                return " #f1948a "
+              } else {
+                return "#5499c7"
+              }
+            }).style("opacity", 0.6)
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 20)
+              .transition().duration(700)
+              .text("Men Majority")
+              .attr("id", "color2")
+              .style("fill", " #f1948a ")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style("font-size", "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 35)
+              .transition().duration(700)
+              .text("Women Majority")
+              .attr("id", "color2")
+              .style("fill", "#5499c7")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+
+            filter2Clicked = true;
+          }
+        }
+      }
+
+      const button5 = document.getElementById("button5")
+      let filter3Clicked;
+      button5.onclick = function () {
+        if (filter3Clicked == true) {
+          filter3Clicked = false
+          d3.selectAll("#color3").remove()
+          d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+            return "gray"
+          }).style("opacity", "none")
+        } else {
+          if (filterClicked == true || filter2Clicked == true) {
+            filterClicked = false
+            filter2Clicked = false
+            d3.selectAll("#color").remove()
+            d3.selectAll("#color2").remove()
+            d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+              filter3Clicked = true
+              if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Asian')"]) {
+                return "#a569bd"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'White')"]) {
+                return "#b3b6b7"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'American Indian / Alaska Native')"]) {
+                return "#d98880"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Black')"]) {
+                return "#5dade2"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
+                return "#2ecc71"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Native Hawaiian / Pacific Islander')"]) {
+                return "#f7dc6f"
+              } else {
+                return "#17202a"
+              }
+            }).style("opacity", 0.6)
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 20)
+              .transition().duration(700)
+              .text("Asian Majority")
+              .attr("id", "color3")
+              .style("fill", "#a569bd")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 35)
+              .transition().duration(700)
+              .text("White Majority")
+              .attr("id", "color3")
+              .style("fill", "#b3b6b7")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 50)
+              .transition().duration(700)
+              .text("American Indian/Alaska Native Majority")
+              .attr("id", "color3")
+              .style("fill", "#d98880")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 65)
+              .transition().duration(700)
+              .text("Black Majority")
+              .attr("id", "color3")
+              .style("fill", "#5dade2")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 80)
+              .transition().duration(700)
+              .text("Hispanic Majority")
+              .attr("id", "color3")
+              .style("fill", "#2ecc71")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 95)
+              .transition().duration(700)
+              .text("Native Hawaiian/Pacific Islander Majority")
+              .attr("id", "color3")
+              .style("fill", "#f7dc6f")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 110)
+              .transition().duration(700)
+              .text("Other Majority")
+              .attr("id", "color3")
+              .style("fill", "#17202a")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            filter3Clicked = true;
+          } else {
+            d3.selectAll("circle.graph").transition().duration(700).attr("fill", d => {
+              filter3Clicked = true
+              if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Asian')"]) {
+                return "#a569bd"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'White')"]) {
+                return "#b3b6b7"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'American Indian / Alaska Native')"]) {
+                return "#d98880"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Black')"]) {
+                return "#5dade2"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Hispanic')"]) {
+                return "#2ecc71"
+              } else if (Math.max(d["('enrollment', 'American Indian / Alaska Native')"], Math.max(d["('enrollment', 'Asian')"],
+                Math.max(d["('enrollment', 'Black')"], Math.max(d["('enrollment', 'Hispanic')"],
+                  Math.max(d["('enrollment', 'Native Hawaiian / Pacific Islander')"],
+                    Math.max(d["('enrollment', 'Non-Resident Foreign')"], Math.max(d["('enrollment', 'Unknown')"],
+                      d["('enrollment', 'White')"]))))))) == d["('enrollment', 'Native Hawaiian / Pacific Islander')"]) {
+                return "#f7dc6f"
+              } else {
+                return "#17202a"
+              }
+            }).style("opacity", 0.6)
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 20)
+              .transition().duration(700)
+              .text("Asian Majority")
+              .attr("id", "color3")
+              .style("fill", "#a569bd")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 35)
+              .transition().duration(700)
+              .text("White Majority")
+              .attr("id", "color3")
+              .style("fill", "#b3b6b7")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 50)
+              .transition().duration(700)
+              .text("American Indian/Alaska Native Majority")
+              .attr("id", "color3")
+              .style("fill", "#d98880")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 65)
+              .transition().duration(700)
+              .text("Black Majority")
+              .attr("id", "color3")
+              .style("fill", "#5dade2")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 80)
+              .transition().duration(700)
+              .text("Hispanic Majority")
+              .attr("id", "color3")
+              .style("fill", "#2ecc71")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 95)
+              .transition().duration(700)
+              .text("Native Hawaiian/Pacific Islander Majority")
+              .attr("id", "color3")
+              .style("fill", "#f7dc6f")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            graphArea.append("text")
+              .attr("x", 800)
+              .attr("y", 110)
+              .transition().duration(700)
+              .text("Other Majority")
+              .attr("id", "color3")
+              .style("fill", "#17202a")
+              .style("font-weight", "bold")
+              .style('pointer-events', "none")
+              .style('font-size', "16px")
+            filter3Clicked = true;
+          }
+        }
+      }
+
+      /**************** Cluster chart ******************/
+      let gradData = await d3.csv('datasets/recent-grads.csv', function (d) {
+        return {
+          Major: d.Major,
+          Total: +d.Total,
+          Men: +d.Men,
+          Women: +d.Women,
+          Median: +d.Median,
+          Unemployment: +d.Unemployment_rate,
+          Category: d.Major_category,
+          ShareWomen: +d.ShareWomen,
+          HistCol: +d.Histogram_column,
+          Midpoint: +d.midpoint
+        };
+      })
+      console.log('gradData', gradData)
+
+      const categories = ['Engineering', 'Business', 'Physical Sciences', 'Law & Public Policy', 'Computers & Mathematics', 'Agriculture & Natural Resources',
+        'Industrial Arts & Consumer Services', 'Arts', 'Health', 'Social Science', 'Biology & Life Science', 'Education', 'Humanities & Liberal Arts',
+        'Psychology & Social Work', 'Communications & Journalism', 'Interdisciplinary']
+
+      const categoriesXY = {
+        'Engineering': [0, 366, 57382, 23.9],
+        'Business': [0, 532, 43538, 48.3],
+        'Physical Sciences': [0, 700, 41890, 50.9],
+        'Law & Public Policy': [0, 200, 42200, 48.3],
+        'Computers & Mathematics': [200, 366, 42745, 31.2],
+        'Agriculture & Natural Resources': [200, 532, 36900, 40.5],
+        'Industrial Arts & Consumer Services': [200, 700, 36342, 35.0],
+        'Arts': [200, 200, 33062, 60.4],
+        'Health': [400, 366, 36825, 79.5],
+        'Social Science': [400, 532, 37344, 55.4],
+        'Biology & Life Science': [400, 700, 36421, 58.7],
+        'Education': [400, 200, 32350, 74.9],
+        'Humanities & Liberal Arts': [600, 366, 31913, 63.2],
+        'Psychology & Social Work': [600, 532, 30100, 79.4],
+        'Communications & Journalism': [600, 700, 34500, 65.9],
+        'Interdisciplinary': [600, 200, 35000, 77.1]
+      }
+      const colors = ['#ffcc00', '#ff6666', '#cc0066', '#66cccc', '#f688bb', '#65587f', '#baf1a1', '#333333', '#75b79e', '#66cccc', '#9de3d0', '#f1935c', '#0c7b93', '#eab0d9', '#baf1a1', '#9399ff']
+      let salarySizeScale = d3.scaleLinear(d3.extent(gradData, d => d.Median), [5, 13])
+      let categoryColorScale = d3.scaleOrdinal(categories, colors)
+
+      let ClusterSvg = d3.select("#vis")
+        .append('svg')
+        .attr('width', 1000)
+        .attr('height', 750)
+        .attr('opacity', 1)
+
+      // Convert object to array
+      const data = Object.entries(categoriesXY);
+      console.log(data)
+
+      // Draw squares
+      const squares = ClusterSvg.selectAll('rect')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('x', d => d[1][0] + 70)
+        .attr('y', d => d[1][1] - 190)
+        .attr('width', 170)
+        .attr('height', 140)
+        .style('stroke', 'grey')
+        .style('fill', 'none');
+
+      // Add labels
+      const labels = ClusterSvg.selectAll('text')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('x', d => d[1][0] + 160)
+        .attr('y', d => d[1][1] - 35) // Adding 220 to position the label below the square
+        .text(d => d[0])
+        .attr('font-size', '12px')
+        .attr('fill', 'black')
+        .style('text-anchor', 'middle');
+
+      let simulation = d3.forceSimulation(gradData)
+
+      // Selection of all the circles 
+      let nodes = ClusterSvg
+        .selectAll('circle')
+        .data(gradData)
+        .enter()
+        .append('circle')
+        .attr('fill', d => categoryColorScale(d.Category))
+        .attr('r', d => salarySizeScale(d.Median) * 1.2)
+        .attr('cx', (d, i) => 0)
+        .attr('cy', (d, i) => 0)
+        .attr('opacity', 0.8)
+
+      ClusterSvg.selectAll('circle')
+        .transition().duration(300).delay((d, i) => i * 5)
+        .attr('r', d => salarySizeScale(d.Median) * 1.2)
+        .attr('fill', d => categoryColorScale(d.Category))
+
+      // Define each tick of simulation
+      simulation.on('tick', () => {
+        nodes
+          .attr('cx', d => d.x)
+          .attr('cy', d => d.y)
+      })
+
+      simulation
+        .force('charge', d3.forceManyBody().strength([2]))
+        .force('forceX', d3.forceX(d => categoriesXY[d.Category][0] + 150))
+        .force('forceY', d3.forceY(d => categoriesXY[d.Category][1] - 120))
+        .force('collide', d3.forceCollide(d => salarySizeScale(d.Median) + 2))
+        .alphaDecay([0.02])
+
+      //Reheat simulation and restart
+      simulation.alpha(0.9).restart()
+
+      // Add mouseover and mouseout events for all circles
+      // Changes opacity and adds border
+      ClusterSvg.selectAll('circle')
+        .on('mouseover', mouseOver)
+        .on('mouseout', mouseOut)
+
+      function mouseOver(event, d, i) {
+
+        d3.select(this)
+          .transition('mouseover').duration(100)
+          .attr('opacity', 1)
+          .attr('stroke-width', 5)
+          .attr('stroke', 'black')
+
+
+        d3.select('#tooltip').style('opacity', 1)
+          .style('left', (event.pageX + 10) + 'px')
+          .style('top', (event.pageY - 25) + 'px')
+          .html(`<strong>Major:</strong> ${d.Major[0] + d.Major.slice(1,).toLowerCase()} 
+              <br> <strong>Median Salary:</strong> $${d3.format(",.2r")(d.Median)} 
+              <br> <strong>Category:</strong> ${d.Category}
+              <br> <strong>% Female:</strong> ${Math.round(d.ShareWomen * 100)}%`)
+      }
+
+      function mouseOut(event, d, i) {
+        d3.select('#tooltip').style('opacity', 0)
+
+        d3.select(this)
+          .transition('mouseout').duration(100)
+          .attr('opacity', 0.8)
+          .attr('stroke-width', 0)
+      }
+
+      // Sort the dataset alphabetically by college name
+      finalData.sort((a, b) => a.name.localeCompare(b.name));
+      // Create the first dropdown
+      const firstCollegeDropdown = d3.select("#first-college")
+        .append("select")
+        .attr("id", "first-college-dropdown");
+
+      firstCollegeDropdown.selectAll("option")
+        .data(finalData)
+        .enter()
+        .append("option")
+        .text(d => d.name)
+        .attr("value", d => d.name);
+
+      var first = 'Adams State University'
+      var second = 'Agnes Scott College'
+
+      // Create the second dropdown with a different default value
+      const secondCollegeDropdown = d3.select("#second-college")
+        .append("select")
+        .attr("id", "second-college-dropdown");
+
+      secondCollegeDropdown.selectAll("option")
+        .data(finalData)
+        .enter()
+        .append("option")
+        .text(d => d.name)
+        .attr("value", d => d.name)
+        .attr("selected", (d, i) => i === 1 ? true : null); // Set the default selected index
+
+      // Add event listeners to both dropdowns
+      firstCollegeDropdown.on("change", function () {
+        console.log("First college dropdown changed to:", this.value);
+        first = this.value
+        spiderChart(first, second)
+      });
+
+      secondCollegeDropdown.on("change", function () {
+        console.log("Second college dropdown changed to:", this.value);
+        second = this.value
+        spiderChart(first, second)
+      });
+
+      function spiderChart(firstCollege, secondCollege) {
+
+        d3.select('#radarChart').remove()
+        console.log(finalData)
+
+        // Set up the SVG element
+        svg = d3.select("#radar")
+          .append("svg").attr('id', 'radarChart')
+          .attr('width', width + margin.left + margin.right).attr('height', height - 100)
+          .append("g")
+          .attr("transform", `translate(${margin.left + width / 2}, ${margin.top + height / 2})`);
+
+        //  mid_career_pay, out_of_state_total, stem_percentage
+        var columns = ['mid_career_pay', 'out_of_state_total', 'stem_percent']
+
+        firstCollegeData = finalData.filter(d => d.name == firstCollege)
+        secondCollegeData = finalData.filter(d => d.name == secondCollege)
+
+        firstCollegeChartData = [];
+        secondCollegeChartData = [];
+
+        var values1 = [];
+        var values2 = [];
+
+        columns.forEach(col => {
+          values1.push(+firstCollegeData[0][col]);
+          values2.push(+secondCollegeData[0][col]);
+        });
+
+        firstCollegeChartData.push({ name: firstCollege, values: values1 });
+        secondCollegeChartData.push({ name: secondCollege, values: values2 });
+
+
+
+        function radarChartPath(data, angleScale, radialScale, columns) {
+          const pathData = data.values.map((value, index) => {
+            const angle = angleScale(index);
+            const x = radialScales[index](value) * Math.sin(angle);
+            const y = -radialScales[index](value) * Math.cos(angle);
+            return [x, y];
+          });
+
+          pathData.push(pathData[0]); // Close the path
+          const path = d3.line()(pathData);
+          return path;
+        }
+
+
+        // Scales and settings for radar chart
+        const angleScale = d3.scaleLinear()
+          .domain([0, columns.length])
+          .range([0, 2 * Math.PI]);
+
+        const radius = Math.min(width, height) / 2 - 90;
+
+        // Find the maximum value in the 'values' array across all data points
+        const maxValue = Math.max(...firstCollegeChartData.map(d => Math.max(...d.values)), ...secondCollegeChartData.map(d => Math.max(...d.values)));
+        console.log(maxValue)
+
+        // Define the radial scale with the updated domain
+        const radialScale = d3.scaleLinear()
+          .domain([0, maxValue])
+          .range([0, radius]);
+
+        const radialScales = columns.map((col) => {
+          const maxValue = Math.max(
+            ...firstCollegeChartData.map(d => d.values[columns.indexOf(col)]),
+            ...secondCollegeChartData.map(d => d.values[columns.indexOf(col)])
+          );
+          return d3.scaleLinear()
+            .domain([0, maxValue])
+            .range([0, radius]);
+        });
+
+
+        // Draw radial lines
+        const radialLines = svg.selectAll(".radial-line")
+          .data(columns)
+          .enter()
+          .append("line")
+          .attr("class", "radial-line")
+          .attr("x1", 0)
+          .attr("y1", 0)
+          .attr("x2", (d, i) => radialScales[i].range()[1] * Math.sin(angleScale(i)))
+          .attr("y2", (d, i) => -radialScales[i].range()[1] * Math.cos(angleScale(i)))
+          .attr("stroke", "black")
+          .attr("stroke-width", 1);
+
+        // Draw axis labels
+        // Define mapping object
+        const labelMapping = {
+          'stem_percent': 'Stem Percent (%)',
+          'mid_career_pay': 'Mid Career Pay',
+          'out_of_state_total': 'Tuition Cost'
+        };
+
+        const axisLabels = svg.selectAll(".axis-label")
+          .data(columns)
+          .enter()
+          .append("text")
+          .attr("class", "axis-label")
+          .attr("x", (d, i) => (radialScales[i].range()[1] + 50) * Math.sin(angleScale(i)))
+          .attr("y", (d, i) => -(radialScales[i].range()[1] + 50) * Math.cos(angleScale(i)))
+          .text(d => labelMapping[d])
+          .attr("text-anchor", "middle")
+          .attr("alignment-baseline", "middle");
+
+        const numTicks = 5; // Define the number of ticks for each axis
+
+        columns.forEach((col, i) => {
+          const tickValues = d3.range(1, numTicks + 1).map(d => d * (radialScales[i].domain()[1] / numTicks));
+
+          tickValues.forEach(tick => {
+            svg.append("line")
+              .attr("class", "tick-line")
+              .attr("x1", radialScales[i](tick) * Math.sin(angleScale(i)))
+              .attr("y1", -radialScales[i](tick) * Math.cos(angleScale(i)))
+              .attr("x2", radialScales[i](tick) * Math.sin(angleScale((i + 1) % columns.length)))
+              .attr("y2", -radialScales[i](tick) * Math.cos(angleScale((i + 1) % columns.length)))
+              .attr("stroke", "lightgray")
+              .attr("stroke-width", 1);
+          });
+
+          // Draw tick values text
+          const tickTextPadding = 5;
+          tickValues.forEach(tick => {
+            svg.append("text")
+              .attr("class", "tick-text")
+              .attr("x", (radialScales[i](tick) + tickTextPadding) * Math.sin(angleScale(i)))
+              .attr("y", -(radialScales[i](tick) + tickTextPadding) * Math.cos(angleScale(i)))
+              .text(tick.toFixed(1))
+              .attr("text-anchor", "middle")
+              .attr("alignment-baseline", "middle")
+              .attr("font-size", "10px")
+              .attr("fill", "black");
+          });
+        });
+
+        // Draw filled polygons for radar chart
+        const radarPolygons = svg.selectAll(".radar-polygon")
+          .data(firstCollegeChartData)
+          .enter()
+          .append("path")
+          .attr("class", "radar-polygon")
+          .attr("d", d => radarChartPath({ values: d.values.map(() => 0) }, angleScale, radialScales, columns))
+          .attr("stroke", "blue")
+          .attr("fill", "blue")
+          .attr("fill-opacity", 0.5)
+          .attr("stroke-width", 2)
+          .on("mousemove", function (event, d) {
+            d3.select(this).attr("stroke", "black").attr("stroke-width", '3px')
+
+            d3.select('#tooltip').html("<b>College: </b> " + d.name)
+              .style('left', (event.pageX - 35) + 'px')
+              .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+          })
+          .on('mouseleave', function () {
+            d3.select(this).attr("stroke-width", '2px').attr('stroke', 'blue')
+            d3.select('#tooltip').style('opacity', 0)
+          })
+          .transition()
+          .duration(500) // Set the duration of the animation in milliseconds
+          .attr("d", d => radarChartPath(d, angleScale, radialScales, columns));
+
+
+        // Draw filled polygons for radar chart (second college)
+        const radarPolygons2 = svg.selectAll(".radar-polygon2")
+          .data(secondCollegeChartData)
+          .enter()
+          .append("path")
+          .attr("class", "radar-polygon2")
+          .attr("d", d => radarChartPath({ values: d.values.map(() => 0) }, angleScale, radialScales, columns))
+          .attr("stroke", "red")
+          .attr("fill", "red")
+          .attr("fill-opacity", 0.5)
+          .attr("stroke-width", 2)
+          .on("mousemove", function (event, d) {
+            d3.select(this).attr("stroke", "black").attr("stroke-width", '3px')
+
+            d3.select('#tooltip').html("<b>College: </b> " + d.name)
+              .style('left', (event.pageX - 305) + 'px')
+              .style('top', (event.pageY - 28) + 'px').style('opacity', 1);
+          })
+          .on('mouseleave', function () {
+            d3.select(this).attr("stroke-width", '2px').attr('stroke', 'red')
+            d3.select('#tooltip').style('opacity', 0)
+          })
+          .transition()
+          .duration(500) // Set the duration of the animation in milliseconds
+          .attr("d", d => radarChartPath(d, angleScale, radialScales, columns));
+      }
+
+      spiderChart(first, second)
+
+    }
+
+
+    render();
+
+
+    let scroll = scroller()
+      .container(d3.select('#graphic'))
+    scroll()
+
+    let lastIndex, activeIndex = 0
+
+    scroll.on('active', function (index) {
+      d3.selectAll('.step')
+        .transition().duration(500)
+        .style('opacity', function (d, i) { return i === index ? 1 : 0.1; });
+
+      activeIndex = index
+      let sign = (activeIndex - lastIndex) < 0 ? -1 : 1;
+      let scrolledSections = d3.range(lastIndex + sign, activeIndex + sign, sign);
+      // scrolledSections.forEach(i => {
+      //     activationFunctions[i]();
+      // })
+      lastIndex = activeIndex;
+
+    })
+
+    scroll.on('progress', function (index, progress) {
+      if (index == 2 & progress > 0.7) {
+
+      }
+    })
+
+
+  </script>
+
+</body>
+
+</html>
