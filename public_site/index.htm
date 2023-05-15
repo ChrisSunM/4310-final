@@ -1481,6 +1481,7 @@
       }
 
       /**************** Cluster chart ******************/
+      //Reference: https://github.com/cuthchow/college-majors-visualisation
       let gradData = await d3.csv('datasets/recent-grads.csv', function (d) {
         return {
           Major: d.Major,
