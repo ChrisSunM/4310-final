@@ -211,6 +211,16 @@
             graduating each school, there are two buttons that color code these
             data points to show their early or mid career incomes.
           </p>
+          <p class="info">
+            One will notice how when the button filters are changed from mid career
+            pay to early career pay or vice versa, the change is incredibly subtle.
+            This is mainly because of the change in the scale of the legend, where
+            the scale for early career pay is lower than the scale for mid career pay.
+            Regardless of this, it seems that career pay stays in the same section of the scale
+            when it changes from early career to mid career, meaning that someone
+            on the lower end of the pay scale in the beginning of their career will
+            stay on that end in the middle of their career.
+          </p>
         </div>
         <text id="mapText">Drag a box to zoom! Double click to zoom back out! Hover over the dots for
           details.</text>
@@ -238,6 +248,19 @@
           Of course, this isn't the result of just gender, as there are many different
           factors to think about and analyze, which is why we give users a lot of
           freedom to explore.
+        </p>
+        <p class="info">
+          Another thing to take note of is the division of public and private
+          universities. The scatterplot itself becomes almost divided into
+          two halves, with private universities on the right half and public on
+          the left half. Of course, this makes sense with private universities
+          being more expensive in their tuition, but one would expect this to mean
+          that students' careers would be more lucrative, when this isn't exactly
+          the case. A majority of private universities, although they are more
+          expensive, sit around the same y-axis as many public universities that
+          cost a lot less. There are some outliers in private universities
+          getting students higher early incomes, but the majority is still on the same
+          level as public universities.
         </p>
         <text class="scatterText">Scroll on the scatterplot to zoom! Hover over dots for more info!</text>
         <br>
@@ -286,6 +309,17 @@
           above-average median salaries. <br><br>
           On the other end, it appears that majors in the field of psychology on average have the lowest
           graduate salaries. <br>
+          <br>
+          It's also interesting to see that in engineering, most of the majors are
+          male majority, being that the percent of females taking majors in that field is
+          below 50%, with most being below 35%. We can then compare this to
+          the Health field, where all the majors in that field are female majority, being
+          over 50% and most are 70% or more. Regardless of salary, it's interesting
+          to think about why these fields are populated in these ways and have such a
+          skewed gender division.
+          <br>
+          <br>
+          <b>Hover over the dots for more information!</b>
         </p>
         <div id="vis">
         </div>
@@ -296,7 +330,12 @@
           Although the scatterplot helps display another good overview, we
           wanted to also allow users to compare between two colleges that
           they're interested in to get a better idea of which they would view
-          as "better".
+          as "better". Because this is a much more narrow and specific comparison,
+          we also wanted to limit the number of variables being shown, which is why
+          we only show tuition cost, stem percent, and mid career pay, so that
+          users can focus on a limited number of variables in their comparison.
+          This small comparison, of course, doesn't determine the value of the school,
+          and is meant to just measure the numbers against each other.
         </p>
         <div>
           <div id="first-college">
@@ -309,8 +348,18 @@
         <div id="radar">
           <svg id="radarChart"></svg>
         </div>
+        <p class="info">
+          Ultimately, even though there are a lot of predictive factors that may
+          influence someone's future career, nothing is ever set in stone.
+          This exploration is meant for seeing what would fit best for the user
+          but it's also just an exploration. Nothing is ever always calculated or
+          predicted and anyone has the chance at succeeding and doing great things
+          no matter where they go or what they do. Each person will have their
+          own definition of "success" as well as their own way of finding that said
+          success. We hope that users won't take this exploration/analysis too
+          much to heart and understand that it's just a surface exploration.
+        </p>
       </section>
-
     </div>
   </div>
   <div id='tooltip'></div>
@@ -1750,11 +1799,18 @@
               .attr("class", "tick-text")
               .attr("x", (radialScales[i](tick) + tickTextPadding) * Math.sin(angleScale(i)))
               .attr("y", -(radialScales[i](tick) + tickTextPadding) * Math.cos(angleScale(i)))
-              .text(tick.toFixed(1))
+              .text(d => {
+                if (tick < 101) {
+                  return tick.toFixed(1)
+                } else {
+                  return "$" + tick.toFixed(1)
+                }
+              })
               .attr("text-anchor", "middle")
               .attr("alignment-baseline", "middle")
               .attr("font-size", "10px")
-              .attr("fill", "black");
+              .attr("fill", "black")
+              .attr("font-weight", "bold");
           });
         });
 
